@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{c33dc600-0b35-40c5-a8e9-0ce439207150}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Card">
+      <UniqueIdentifier>{675b08e8-3d98-4bfd-ae4c-2c591518957a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Card\Application.h" />
+    <ClInclude Include="src\Card\Base.h" />
+    <ClInclude Include="src\Card.h" />
+    <ClInclude Include="src\Card\Entry.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Card\Application.cpp" />
+  </ItemGroup>
+</Project>
