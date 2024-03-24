@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Card", "Card\Card.vcxproj", "{76616098-1348-4F7D-9864-337176E90238}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sandbox", "sandbox\sandbox.vcxproj", "{9F8935D4-18C5-4004-933E-8A118BF94D99}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Kaartspel", "Kaartspel\Kaartspel.vcxproj", "{270EB382-5DFA-4F61-B824-049C11E5EC90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{76616098-1348-4F7D-9864-337176E90238}.Debug|x64.Build.0 = Debug|x64
 		{76616098-1348-4F7D-9864-337176E90238}.Release|x64.ActiveCfg = Release|x64
 		{76616098-1348-4F7D-9864-337176E90238}.Release|x64.Build.0 = Release|x64
-		{9F8935D4-18C5-4004-933E-8A118BF94D99}.Debug|x64.ActiveCfg = Debug|x64
-		{9F8935D4-18C5-4004-933E-8A118BF94D99}.Debug|x64.Build.0 = Debug|x64
-		{9F8935D4-18C5-4004-933E-8A118BF94D99}.Release|x64.ActiveCfg = Release|x64
-		{9F8935D4-18C5-4004-933E-8A118BF94D99}.Release|x64.Build.0 = Release|x64
+		{270EB382-5DFA-4F61-B824-049C11E5EC90}.Debug|x64.ActiveCfg = Debug|x64
+		{270EB382-5DFA-4F61-B824-049C11E5EC90}.Debug|x64.Build.0 = Debug|x64
+		{270EB382-5DFA-4F61-B824-049C11E5EC90}.Release|x64.ActiveCfg = Release|x64
+		{270EB382-5DFA-4F61-B824-049C11E5EC90}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

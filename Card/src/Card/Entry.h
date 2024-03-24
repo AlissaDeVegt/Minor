@@ -5,7 +5,8 @@
 extern Card::Application* Card::CreateApplication();
 
 int main(int args, char** argv) {
-	printf("card engine\n");
+	printf("we love testing the engine\n");
+	//Card::Logging::Init();
 
 	auto app = Card::CreateApplication();
 	app->Run();
