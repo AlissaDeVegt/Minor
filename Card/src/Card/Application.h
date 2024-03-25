@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Base.h"
+
+
 namespace Card {
 	class CARD_API Application
 	{

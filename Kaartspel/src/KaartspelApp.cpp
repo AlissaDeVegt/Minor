@@ -15,3 +15,4 @@ public:
 Card::Application* Card::CreateApplication() {
 	return new Kaartspel();
 }
+

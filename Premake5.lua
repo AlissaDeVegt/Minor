@@ -1,6 +1,6 @@
-workspace "GameEngine"
+workspace "Minor"
 	architecture "x64"
-	startproject "Sandbox"
+	startproject "Kaartspel"
 	
 	configurations{
 		"Debug",
@@ -25,7 +25,8 @@ project "Card"
 	}
 
 	includedirs{
-		"Card/vendor/spdlog/include"
+		"Card/vendor/spdlog/include",
+		"Card/vendor/GLFW/glfw-3.4/include/GLFW"
 	}
 
 	filter "system:windows"
@@ -70,6 +71,7 @@ project "Kaartspel"
 
 	includedirs{
 		"Card/vendor/spdlog/include",
+		"Card/vendor/GLFW/glfw-3.4/include/GLFW",
 		"Card/src/"
 	}
 

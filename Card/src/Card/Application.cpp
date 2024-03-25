@@ -1,6 +1,5 @@
 #include "Application.h"
 
-
 namespace Card{
 
 	Application::Application()
@@ -15,9 +14,8 @@ namespace Card{
 	{
 		while (true)
 		{
-	
+
 		}
-	
 	}
 
 }
