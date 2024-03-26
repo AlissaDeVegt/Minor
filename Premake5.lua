@@ -25,8 +25,19 @@ project "Card"
 	}
 
 	includedirs{
-		"Card/vendor/spdlog/include",
-		"Card/vendor/GLFW/glfw-3.4/include/GLFW"
+		"C:/VulkanSDK/1.3.280.0/Include",
+		"Card/vendor/GLFW/glfw-3.4.bin.WIN64/include",
+		"Card/vendor/spdlog/include"
+	}									  
+										  
+	links{								  
+		"vulkan-1.lib",
+		"glfw3_mt.lib"
+	}									  
+										  
+	libdirs{							  
+		"C:/VulkanSDK/1.3.280.0/Lib",
+		"Card/vendor/GLFW/glfw-3.4.bin.WIN64/lib-vc2022"
 	}
 
 	filter "system:windows"
@@ -70,15 +81,24 @@ project "Kaartspel"
 	}
 
 	includedirs{
+		"C:/VulkanSDK/1.3.280.0/Include",
+		"Card/vendor/GLFW/glfw-3.4.bin.WIN64/include",
 		"Card/vendor/spdlog/include",
-		"Card/vendor/GLFW/glfw-3.4/include/GLFW",
 		"Card/src/"
 	}
 
 	links{
-		"Card"
+		"Card",
+		"vulkan-1.lib",
+		"glfw3_mt.lib"
+
 	}
 
+	libdirs{
+		"C:/VulkanSDK/1.3.280.0/Lib",
+		"Card/vendor/GLFW/glfw-3.4.bin.WIN64/lib-vc2022"
+
+	}
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"

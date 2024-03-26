@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Base.h"
-
+#include "Window.h"
+#include "Logger.h"
 
 namespace Card {
 	class CARD_API Application
@@ -12,7 +13,11 @@ namespace Card {
 
 		void Run();
 
+		Window* window;
+
+		virtual void Update();
 	};
 
 	Application* CreateApplication(); //client defined
+
 }

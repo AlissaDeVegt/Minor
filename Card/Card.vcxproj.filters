@@ -16,9 +16,21 @@
     <ClInclude Include="src\Card\Entry.h">
       <Filter>Card</Filter>
     </ClInclude>
+    <ClInclude Include="src\Card\Logger.h">
+      <Filter>Card</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\Window.h">
+      <Filter>Card</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Card\Application.cpp">
+      <Filter>Card</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\Logger.cpp">
+      <Filter>Card</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\Window.cpp">
       <Filter>Card</Filter>
     </ClCompile>
   </ItemGroup>

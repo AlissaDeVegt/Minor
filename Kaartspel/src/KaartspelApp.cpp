@@ -10,6 +10,10 @@ public:
 
 	}
 
+	void Update() override {
+		
+	}
+
 };
 
 Card::Application* Card::CreateApplication() {
