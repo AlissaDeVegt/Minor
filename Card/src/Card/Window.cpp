@@ -9,6 +9,7 @@ namespace Card {
 
     Window::~Window()
     {
+        vkDestroySwapchainKHR(device, swapChain, nullptr);
         vkDestroyDevice(device, nullptr);
         vkDestroySurfaceKHR(vkinstance, surface, nullptr);
         vkDestroyInstance(vkinstance, nullptr);
@@ -44,10 +45,13 @@ namespace Card {
     /// </summary>
     void Window::initVulkan()
     {
+        //TODO add ImageViews
+        //TODO add shader modules
         createInstance();
         createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
+        createSwapChain();
     }
 
     /// <summary>
@@ -98,6 +102,9 @@ namespace Card {
         if (vkCreateInstance(&createInfo, nullptr, &vkinstance) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to create instance!");
         }
+        else {
+            CARD_ENGINE_INFO("Succes in creating the instance");
+        }
     }
 
     /// <summary>
@@ -110,6 +117,9 @@ namespace Card {
 
         if (deviceCount == 0) {
             CARD_ENGINE_ERROR("failed to find GPUs with Vulkan support!");
+        }
+        else {
+            CARD_ENGINE_INFO("Succes in finding a Gpu with vulkan support");
         }
         
         std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -125,6 +135,9 @@ namespace Card {
 
         if (physicalDevice == VK_NULL_HANDLE) {
             CARD_ENGINE_ERROR("failed to find a suitable GPU!");
+        }
+        else {
+            CARD_ENGINE_INFO("Succes in finding a suitable GPU");
         }
     }
 
@@ -175,6 +188,9 @@ namespace Card {
         if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to create logical device!");
         }
+        else {
+            CARD_ENGINE_INFO("Succes in creating logical device");
+        }
 
         vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
         vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
@@ -190,6 +206,90 @@ namespace Card {
         if (glfwCreateWindowSurface(vkinstance, window, nullptr, &surface) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to create window surface!");
         }
+        else {
+            CARD_ENGINE_INFO("Succes in creating surface");
+        }
+    }
+
+    /// <summary>
+    /// Creation of the swapchain, the frame buffer.
+    /// </summary>
+    void Window::createSwapChain()
+    {
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
+
+        VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
+        VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
+        VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+
+        uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+
+        //must make sure we aren't going over limit of the max image
+        //in this case if max is 0 it doesn't mean it can support max 0 images but means that there isn't a maximum
+        if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
+            imageCount = swapChainSupport.capabilities.maxImageCount;
+        }
+
+        //creation of the swapchain
+        VkSwapchainCreateInfoKHR createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        createInfo.surface = surface;
+
+        createInfo.minImageCount = imageCount;
+        createInfo.imageFormat = surfaceFormat.format;
+        createInfo.imageColorSpace = surfaceFormat.colorSpace;
+        createInfo.imageExtent = extent;
+        //always 1 unless stereoscopic 3D application. (VR games)
+        createInfo.imageArrayLayers = 1;
+        //image usage currently is to imidiatly render, 
+        //future could change VK_IMAGE_USAGE_TRANSFER_DST_BIT for post-processing        
+        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+        QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+        uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+
+        //determine how to handle the images
+        if (indices.graphicsFamily != indices.presentFamily) {
+            //concurrent, images can be used across multiple queues
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT; 
+            createInfo.queueFamilyIndexCount = 2;
+            createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        }
+        else {
+            //exclusive, best performance, but ownership must be explicitly transferred
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            createInfo.queueFamilyIndexCount = 0;
+            createInfo.pQueueFamilyIndices = nullptr; 
+        }
+
+        createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+
+        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+        createInfo.presentMode = presentMode;
+        //if clipped is true we dont care about obscure pixels like the onces hidden behind another window
+        //best performance wise is enabked, but for accuracy and predictability false could be enabled.
+        createInfo.clipped = VK_TRUE;
+
+        //currently the idea is there will be only one swapchain created so its null.
+        //for future when window gets resized or anything else changes to swapchain a new swapchain will be created and old one will be refrenced using this.
+        createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+        //filling the swapchain
+        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+            CARD_ENGINE_ERROR("failed to create swap chain!");
+        }
+        else {
+            CARD_ENGINE_INFO("Succes in creating swap chain");
+        }
+
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
+        swapChainImages.resize(imageCount);
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
+
+        swapChainImageFormat = surfaceFormat.format;
+        swapChainExtent = extent;
+
     }
 
     /// <summary>
@@ -243,7 +343,6 @@ namespace Card {
 
         return requiredExtensions.empty();
     }
-    
 
     /// <summary>
     /// requirements a suitable device needs to have
@@ -350,7 +449,7 @@ namespace Card {
     /// </summary>
     /// <param name="availableFormats">list of available formats</param>
     /// <returns>best format of our requirements or the first</returns>
-    VkSurfaceFormatKHR Window::chooseSwapsurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+    VkSurfaceFormatKHR Window::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
     {
         for (const auto& availableFormat : availableFormats) {
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -360,6 +459,7 @@ namespace Card {
         //could add a point system to find the next best thing.
         return availableFormats[0];
     }
+    
     /// <summary>
     /// chhose the chain swapmode.
     /// there are four possible in vulkan 
@@ -377,10 +477,12 @@ namespace Card {
     }
 
     /// <summary>
-    /// 
+    /// Choose the swap chain extent aka the size.
+    /// glfw height and width of the window are coordinents and  vulkan works with pixels so 
+    /// we must get pixel info through glfw
     /// </summary>
-    /// <param name="capabilities"></param>
-    /// <returns></returns>
+    /// <param name="capabilities">pointer to capabilties</param>
+    /// <returns>the best option for extent</returns>
     VkExtent2D Window::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return capabilities.currentExtent;

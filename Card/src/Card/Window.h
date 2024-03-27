@@ -48,6 +48,7 @@ namespace Card {
 		void pickPhysicalDevice();
 		void createLogicalDevice();
 		void createSurface();
+		void createSwapChain();
 		
 		bool checkValidationLayerSupport();
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
@@ -55,7 +56,7 @@ namespace Card {
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
-		VkSurfaceFormatKHR chooseSwapsurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
@@ -70,11 +71,15 @@ namespace Card {
 		VkInstance vkinstance;
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 		VkDevice device;
+		VkSwapchainKHR swapChain;
+		VkSurfaceKHR surface;
+		VkFormat swapChainImageFormat;
+		VkExtent2D swapChainExtent;
 
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
 
-		VkSurfaceKHR surface;
+		std::vector<VkImage> swapChainImages;
 
 		//list of validationlayers
 		const std::vector<const char*> validationLayers = {
