@@ -47,6 +47,9 @@ namespace Card {
     {
         //TODO add ImageViews
         //TODO add shader modules
+        //TODO add framebuffers
+        //TODO add vertexbuffers
+        //TODO add maybe glm for calculations
         createInstance();
         createSurface();
         pickPhysicalDevice();
