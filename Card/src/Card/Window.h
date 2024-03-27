@@ -49,6 +49,7 @@ namespace Card {
 		void createLogicalDevice();
 		void createSurface();
 		void createSwapChain();
+		void createImageViews();
 		
 		bool checkValidationLayerSupport();
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
@@ -80,6 +81,7 @@ namespace Card {
 		VkQueue presentQueue;
 
 		std::vector<VkImage> swapChainImages;
+		std::vector<VkImageView> swapChainImageViews;
 
 		//list of validationlayers
 		const std::vector<const char*> validationLayers = {
