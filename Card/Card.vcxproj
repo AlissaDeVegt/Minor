@@ -156,6 +156,15 @@
     <ClCompile Include="src\Card\Logger.cpp" />
     <ClCompile Include="src\Card\Window.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="src\Card\shaders\shader.frag" />
+    <Text Include="src\Card\shaders\shader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Card\shaders\compileshaders.bat" />
+    <None Include="src\Card\shaders\frag.spv" />
+    <None Include="src\Card\shaders\vert.spv" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

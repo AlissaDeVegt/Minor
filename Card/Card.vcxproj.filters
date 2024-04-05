@@ -34,4 +34,13 @@
       <Filter>Card</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="src\Card\shaders\shader.vert" />
+    <Text Include="src\Card\shaders\shader.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Card\shaders\frag.spv" />
+    <None Include="src\Card\shaders\compileshaders.bat" />
+    <None Include="src\Card\shaders\vert.spv" />
+  </ItemGroup>
 </Project>

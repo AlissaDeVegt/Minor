@@ -13,6 +13,7 @@
 #include <iostream>
 #include <optional>
 #include <set>
+#include <fstream>
 
 
 namespace Card {
@@ -50,6 +51,11 @@ namespace Card {
 		void createSurface();
 		void createSwapChain();
 		void createImageViews();
+		void createRenderPass();
+		void createGraphicsPipeline();
+		void createFramebuffers();
+
+		static std::vector<char> readFile(std::string filename);
 		
 		bool checkValidationLayerSupport();
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
@@ -60,6 +66,8 @@ namespace Card {
 		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+		VkShaderModule createShaderModule(const std::vector<char>& code);
 
 	private:
 		const int width;
@@ -80,8 +88,14 @@ namespace Card {
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
 
+		VkRenderPass renderPass;
+		VkPipelineLayout pipelineLayout;
+		VkPipeline graphicsPipeline;
+
 		std::vector<VkImage> swapChainImages;
 		std::vector<VkImageView> swapChainImageViews;
+		std::vector<VkFramebuffer> swapChainFramebuffers;
+
 
 		//list of validationlayers
 		const std::vector<const char*> validationLayers = {
