@@ -41,6 +41,7 @@ namespace Card {
 
 		void initWindow();
 		void update();
+		void drawFrame();
 		//TODO add close window
 
 		//---------------vulkan---------------
@@ -54,8 +55,12 @@ namespace Card {
 		void createRenderPass();
 		void createGraphicsPipeline();
 		void createFramebuffers();
+		void createCommandPool();
+		void createCommandBuffer();
+		void createSyncObjects();
 
 		static std::vector<char> readFile(std::string filename);
+		void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 		
 		bool checkValidationLayerSupport();
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
@@ -91,6 +96,12 @@ namespace Card {
 		VkRenderPass renderPass;
 		VkPipelineLayout pipelineLayout;
 		VkPipeline graphicsPipeline;
+		VkCommandPool commandPool;
+		VkCommandBuffer commandBuffer;
+
+		VkSemaphore imageAvailableSemaphore;
+		VkSemaphore renderFinishedSemaphore;
+		VkFence inFlightFence;
 
 		std::vector<VkImage> swapChainImages;
 		std::vector<VkImageView> swapChainImageViews;
