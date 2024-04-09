@@ -122,8 +122,6 @@ namespace Card {
         createCommandPool();
         createCommandBuffer();
         createSyncObjects();
-        //TODO add vertexbuffers
-        //TODO add maybe glm for calculations
     }
 
     /// <summary>
@@ -452,6 +450,9 @@ namespace Card {
     
     }
 
+    /// <summary>
+    /// creation of graphicspipeline
+    /// </summary>
     void Window::createGraphicsPipeline()
     {
         //TODO currently full path, add maybe reletive path
@@ -589,6 +590,9 @@ namespace Card {
         vkDestroyShaderModule(device, vertShaderModule, nullptr);
     }
 
+    /// <summary>
+    /// creation of the framebuffers
+    /// </summary>
     void Window::createFramebuffers()
     {
         swapChainFramebuffers.resize(swapChainImageViews.size());
@@ -616,6 +620,9 @@ namespace Card {
         }
     }
 
+    /// <summary>
+    /// creation of the the commandpool
+    /// </summary>
     void Window::createCommandPool()
     {
         QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
@@ -630,6 +637,9 @@ namespace Card {
         }
     }
 
+    /// <summary>
+    /// commandbuffer
+    /// </summary>
     void Window::createCommandBuffer()
     {
         VkCommandBufferAllocateInfo allocInfo{};
@@ -643,6 +653,9 @@ namespace Card {
         }
     }
 
+    /// <summary>
+    /// create the fence and two semaphore, the available and finished render
+    /// </summary>
     void Window::createSyncObjects()
     {
         VkSemaphoreCreateInfo semaphoreInfo{};
