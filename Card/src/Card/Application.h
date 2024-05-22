@@ -15,7 +15,7 @@ namespace Card {
 
 		Window* window;
 
-		virtual void Update();
+		virtual void update();
 	};
 
 	Application* CreateApplication(); //client defined

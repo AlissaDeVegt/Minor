@@ -10,7 +10,7 @@ public:
 
 	}
 
-	void Update() override {
+	void update() override {
 		
 	}
 

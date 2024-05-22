@@ -17,18 +17,21 @@ namespace Card{
 	void Application::Run()
 	{
 		window = new Window(850, 400, "Cards");
-		while (true)
+
+		while (!glfwWindowShouldClose(window->getGlfwWindow()))
 		{
 			window->update();
-			this->Update();
+			this->update();
 
 		}
+
+		window->waitDevice();
 	}
 
 	/// <summary>
 	/// Class that gets overwritten by the client for the updates of game code.
 	/// </summary>
-	void Application::Update()
+	void Application::update()
 	{
 
 	}
