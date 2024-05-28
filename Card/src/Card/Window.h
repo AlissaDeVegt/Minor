@@ -1,11 +1,14 @@
 #pragma once
 #include "Base.h"
 #include "Logger.h"
+#include "Util/ModelLoader.h"
+#include "Util/Vertex.h"
 
 #define VK_USE_PLATFORM_WIN64_KHR
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_RADIANS
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -14,6 +17,7 @@
 
 #define GLFW_EXPOSE_NATIVE_WIN64
 #include <GLFW/glfw3native.h>
+
 
 #include <string>
 #include <iostream>
@@ -33,41 +37,10 @@ namespace Card {
 		}
 	};
 
-	struct Vertex {
-		glm::vec2 pos;
-		glm::vec3 color;
-
-		static VkVertexInputBindingDescription getBindingDescription() {
-			VkVertexInputBindingDescription bindingDescription{};
-			bindingDescription.binding = 0;
-			bindingDescription.stride = sizeof(Vertex);
-			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-			return bindingDescription;
-		}
-
-		static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
-			std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
-
-			attributeDescriptions[0].binding = 0;
-			attributeDescriptions[0].location = 0;
-			attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 1;
-			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-
-			return attributeDescriptions;
-		}
-	};
-
 	struct UniformBufferObject {
-		glm::mat4 model;
-		glm::mat4 view;
-		glm::mat4 proj;
+		alignas(16) glm::mat4 model;
+		alignas(16) glm::mat4 view;
+		alignas(16) glm::mat4 proj;
 	};
 
 	struct SwapChainSupportDetails {
@@ -105,11 +78,26 @@ namespace Card {
 		void waitDevice();
 		void cleanupSwapChain();
 		void recreateSwapChain();
+		void createTextureImage();
 		void createVertexBuffer();
 		void createIndexBuffer();
 		void createDescriptorSetLayout();
 		void createUniformBuffers();
-		void updateUniformBuffer(uint32_t currentImage)
+		void updateUniformBuffer(uint32_t currentImage);
+		void createDescriptorPool();
+		void createDescriptorSets();
+		void loadModel();
+		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+		void createTextureSampler();
+		void createTextureImageView();
+		void createDepthResources();
+
+		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+		VkFormat findDepthFormat();
+		bool hasStencilComponent(VkFormat format);
 
 		void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 		void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
@@ -131,13 +119,18 @@ namespace Card {
 
 		VkShaderModule createShaderModule(const std::vector<char>& code);
 		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-
+		VkCommandBuffer beginSingleTimeCommands();
+		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+		VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
 	private:
 		const int MAX_FRAMES_IN_FLIGHT = 2;
 		uint32_t currentFrame = 0;
 		const int width;
 		const int height;
+
+		const std::string MODEL_PATH = "C:/dev/Minor/Card/src/Card/models/vikingroom.obj";
+		const std::string TEXTURE_PATH = "C:/dev/Minor/Card/src/Card/textures/viking_room.png";
 
 		std::string windowname;
 		GLFWwindow* window;
@@ -151,10 +144,15 @@ namespace Card {
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
 
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexBufferMemory;
 		VkBuffer indexBuffer;
 		VkDeviceMemory indexBufferMemory;
+
+		VkDescriptorPool descriptorPool;
 
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
@@ -164,6 +162,18 @@ namespace Card {
 		VkPipelineLayout pipelineLayout;
 		VkPipeline graphicsPipeline;
 		VkCommandPool commandPool;
+
+		VkImage textureImage;
+		VkDeviceMemory textureImageMemory;
+		VkImageView textureImageView;
+		VkSampler textureSampler;
+
+		VkImage depthImage;
+		VkDeviceMemory depthImageMemory;
+		VkImageView depthImageView;
+
+		std::vector<VkDescriptorSet> descriptorSets;
+
 		std::vector<VkCommandBuffer> commandBuffers;
 
 		std::vector<VkSemaphore> imageAvailableSemaphores;
@@ -178,8 +188,8 @@ namespace Card {
 		std::vector<VkDeviceMemory> uniformBuffersMemory;
 		std::vector<void*> uniformBuffersMapped;
 
-		bool framebufferResized = false;
 
+		bool framebufferResized = false;
 
 		//list of validationlayers
 		const std::vector<const char*> validationLayers = {
@@ -190,18 +200,8 @@ namespace Card {
 		const std::vector<const char*> deviceExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
-
-		const std::vector<Vertex> vertices = {
-			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
-		};
-
-		const std::vector<uint32_t> indices = {
-			0, 1, 2, 2, 3, 0
-		};
-
+	
+		
 		//----------------macro----------------
 		#ifdef NDEBUG
 				const bool enableValidationLayers = false;

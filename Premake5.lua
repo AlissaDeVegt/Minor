@@ -25,7 +25,8 @@ project "Card"
 	}
 
 	includedirs{
-		"C:/dev/Minor/Card/vendor/glm",
+		"Card/vendor/glm",
+		"Card/vendor/stb",
 		"C:/VulkanSDK/1.3.280.0/Include",
 		"Card/vendor/GLFW/glfw-3.4.bin.WIN64/include",
 		"Card/vendor/spdlog/include"
@@ -82,7 +83,8 @@ project "Kaartspel"
 	}
 
 	includedirs{
-		"C:/dev/Minor/Card/vendor/glm",
+		"Card/vendor/glm",
+		"Card/vendor/stb",
 		"C:/VulkanSDK/1.3.280.0/Include",
 		"Card/vendor/GLFW/glfw-3.4.bin.WIN64/include",
 		"Card/vendor/spdlog/include",

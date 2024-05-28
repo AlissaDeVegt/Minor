@@ -22,6 +22,7 @@
     <ClInclude Include="src\Card\Window.h">
       <Filter>Card</Filter>
     </ClInclude>
+    <ClInclude Include="ModelLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Card\Application.cpp">
@@ -33,5 +34,6 @@
     <ClCompile Include="src\Card\Window.cpp">
       <Filter>Card</Filter>
     </ClCompile>
+    <ClCompile Include="ModelLoader.cpp" />
   </ItemGroup>
 </Project>

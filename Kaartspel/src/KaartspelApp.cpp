@@ -3,7 +3,7 @@
 class Kaartspel : public Card::Application {
 public:
 	Kaartspel() {
-
+		
 	}
 
 	~Kaartspel() {
@@ -13,6 +13,7 @@ public:
 	void update() override {
 		
 	}
+
 
 };
 
