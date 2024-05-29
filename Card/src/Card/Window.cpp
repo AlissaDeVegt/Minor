@@ -45,9 +45,8 @@ namespace Card {
         }
 
         vkDestroyCommandPool(device, commandPool, nullptr);
+        graphicsPipeline.destroyPipeline(device);
 
-        vkDestroyPipeline(device, graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
         vkDestroyRenderPass(device, renderPass, nullptr);
 
         vkDestroyDevice(device, nullptr);
@@ -176,7 +175,8 @@ namespace Card {
         createImageViews();
         createRenderPass();
         createDescriptorSetLayout();
-        createGraphicsPipeline();
+        //createGraphicsPipeline();
+        graphicsPipeline = GraphicsPipeline("C:/dev/Minor/Card/src/Card/shaders/vert.spv", "C:/dev/Minor/Card/src/Card/shaders/frag.spv",device,renderPass,&descriptorSetLayout);
         createCommandPool();
         createDepthResources();
         createFramebuffers();
@@ -514,6 +514,7 @@ namespace Card {
     
     }
 
+    /*
     void Window::createGraphicsPipeline()
     {
         //TODO currently full path, add maybe relative path
@@ -665,6 +666,7 @@ namespace Card {
         vkDestroyShaderModule(device, fragShaderModule, nullptr);
         vkDestroyShaderModule(device, vertShaderModule, nullptr);
     }
+    */
 
     void Window::createFramebuffers()
     {
@@ -1280,6 +1282,7 @@ namespace Card {
         app->framebufferResized = true;
     }
 
+    /*
     /// <summary>
     /// wrap the shaders in a vkshadermodule object
     /// </summary>
@@ -1302,7 +1305,7 @@ namespace Card {
         }
 
         return shaderModule;
-    }
+    }*/
 
     uint32_t Window::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
@@ -1373,28 +1376,6 @@ namespace Card {
         return imageView;
     }
 
-    std::vector<char> Window::readFile(std::string filename)
-    {
-        //read the file starting from the end as a binary file
-        std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-        if (!file.is_open()) {
-            CARD_ENGINE_ERROR("failed to open file!");
-            return std::vector<char>();
-        }
-
-        size_t fileSize = (size_t)file.tellg();
-        std::vector<char> buffer(fileSize);
-
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-
-        file.close();
-
-        return buffer;
-
-    }
-
     /// <summary>
     /// record command buffer
     /// TODO change code to all
@@ -1429,7 +1410,7 @@ namespace Card {
 
         vkCmdBeginRenderPass(commandBuffers, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+        vkCmdBindPipeline(commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.getgraphicsPipeline());
 
         VkBuffer vertexBuffers[] = { vertexBuffer };
         VkDeviceSize offsets[] = { 0 };
@@ -1452,7 +1433,7 @@ namespace Card {
         scissor.extent = swapChainExtent;
         vkCmdSetScissor(commandBuffers, 0, 1, &scissor);
 
-        vkCmdBindDescriptorSets(commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.getpipelineLayout(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
         vkCmdDrawIndexed(commandBuffers, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers);

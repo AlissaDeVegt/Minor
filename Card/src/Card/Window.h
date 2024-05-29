@@ -1,6 +1,7 @@
 #pragma once
 #include "Base.h"
 #include "Logger.h"
+#include "GraphicsPipeline.h"
 #include "Util/ModelLoader.h"
 #include "Util/Vertex.h"
 
@@ -59,7 +60,6 @@ namespace Card {
 		void update();
 		void drawFrame();
 		GLFWwindow* getGlfwWindow();
-		//TODO add close window
 
 		//---------------vulkan---------------
 		void initVulkan();
@@ -70,7 +70,6 @@ namespace Card {
 		void createSwapChain();
 		void createImageViews();
 		void createRenderPass();
-		void createGraphicsPipeline();
 		void createFramebuffers();
 		void createCommandPool();
 		void createCommandBuffers();
@@ -104,7 +103,6 @@ namespace Card {
 
 		static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
-		static std::vector<char> readFile(std::string filename);
 		void recordCommandBuffer(VkCommandBuffer commandBuffers, uint32_t imageIndex);
 		
 		bool checkValidationLayerSupport();
@@ -117,7 +115,6 @@ namespace Card {
 		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
-		VkShaderModule createShaderModule(const std::vector<char>& code);
 		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 		VkCommandBuffer beginSingleTimeCommands();
 		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
@@ -134,6 +131,10 @@ namespace Card {
 
 		std::string windowname;
 		GLFWwindow* window;
+
+		//-----------wrapper classes-----------
+
+		GraphicsPipeline graphicsPipeline;
 
 		//----------------vulkan---------------
 		VkInstance vkinstance;
@@ -159,8 +160,7 @@ namespace Card {
 
 		VkRenderPass renderPass;
 		VkDescriptorSetLayout descriptorSetLayout;
-		VkPipelineLayout pipelineLayout;
-		VkPipeline graphicsPipeline;
+
 		VkCommandPool commandPool;
 
 		VkImage textureImage;
@@ -173,7 +173,6 @@ namespace Card {
 		VkImageView depthImageView;
 
 		std::vector<VkDescriptorSet> descriptorSets;
-
 		std::vector<VkCommandBuffer> commandBuffers;
 
 		std::vector<VkSemaphore> imageAvailableSemaphores;
