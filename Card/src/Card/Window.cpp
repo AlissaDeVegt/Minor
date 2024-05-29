@@ -668,6 +668,9 @@ namespace Card {
     }
     */
 
+    /// <summary>
+    /// creation of the framebuffers
+    /// </summary>
     void Window::createFramebuffers()
     {
         swapChainFramebuffers.resize(swapChainImageViews.size());
@@ -696,6 +699,9 @@ namespace Card {
         }
     }
 
+    /// <summary>
+    /// creation of the the commandpool
+    /// </summary>
     void Window::createCommandPool()
     {
         QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
@@ -725,6 +731,9 @@ namespace Card {
         }
     }
 
+    /// <summary>
+    /// create the fence and two semaphore, the available and finished render
+    /// </summary>
     void Window::createSyncObjects()
     {
         imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
