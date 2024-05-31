@@ -1,9 +1,9 @@
 #pragma once
 #include "../Base.h"
 #include "../Logger.h"
-#include "../Window.h"
-#include "../Model.h"
-#include "Vertex.h"
+#include "../graphics/Window.h"
+#include "../graphics/Model.h"
+#include "../graphics/Vertex.h"
 #include "Split.h"
 #include <string>
 #include <iostream>
@@ -15,7 +15,7 @@ namespace Card {
 	{
 	public:
 		static Model readModelFile(std::string modelPath);
-		//todo Model instead of floating vertices
+		
 	};
 }
 

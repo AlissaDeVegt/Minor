@@ -1,7 +1,10 @@
 #pragma once
-#include "Base.h"
+#include "../Base.h"
+
+#include "Vertex.h"
+
 #include <vector>
-#include "Util/Vertex.h"
+
 namespace Card {
 	class CARD_API Model
 	{
@@ -12,8 +15,8 @@ namespace Card {
 		std::vector<Vertex> getVertices();
 		std::vector<uint32_t> getIndices();
 
-		void moveObject(glm::vec3 newPosition);
-		void resetObject();
+		Model moveObject(glm::vec3 newPosition);
+		Model resetObject();
 
 	private:
 		std::vector<Vertex> vertices;

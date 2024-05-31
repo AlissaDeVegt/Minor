@@ -14,7 +14,9 @@ public:
 		
 	}
 
+	void start() override {
 
+	}
 };
 
 Card::Application* Card::CreateApplication() {

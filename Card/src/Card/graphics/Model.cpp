@@ -19,7 +19,7 @@ namespace Card {
 		return indices;
 	}
 
-	void Model::moveObject(glm::vec3 newPosition)
+	Model Model::moveObject(glm::vec3 newPosition)
 	{
 		position = newPosition;
 
@@ -29,9 +29,9 @@ namespace Card {
 			v->pos.y = v->pos.y + position.y;
 			v->pos.z = v->pos.z + position.z;
 		}
-	
+		return *this;
 	}
-	void Model::resetObject()
+	Model Model::resetObject()
 	{
 		for (int i = 0; i < vertices.size(); i++) {
 			Vertex* v = &vertices[i];
@@ -39,5 +39,6 @@ namespace Card {
 			v->pos.y = v->pos.y - position.y;
 			v->pos.z = v->pos.z - position.z;
 		}
+		return *this;
 	}
 }

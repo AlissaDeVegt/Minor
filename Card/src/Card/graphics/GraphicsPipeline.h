@@ -1,7 +1,7 @@
 #pragma once
-#include "Base.h"
-#include "Logger.h"
-#include "Util/Vertex.h"
+#include "../Base.h"
+#include "../Logger.h"
+#include "Vertex.h"
 
 #include <string>
 #include <iostream>

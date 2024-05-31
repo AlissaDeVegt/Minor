@@ -3,6 +3,7 @@
 namespace Card {
     GraphicsPipeline::GraphicsPipeline()
     {
+
     }
     GraphicsPipeline::GraphicsPipeline(std::string filepathVertex, std::string filepathFragment, VkDevice device, VkRenderPass renderPass, VkDescriptorSetLayout* descriptorSetLayout)
     {
@@ -49,8 +50,6 @@ namespace Card {
         VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
         //fixed functionshaders 
-        //vertexes are hardcoded in shader, so nothing needs to be loaded.
-        //todo change to not hardcode
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{}; //The format of the vertex data that will be passed to the vertex shader.
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         auto bindingDescription = Vertex::getBindingDescription();

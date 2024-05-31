@@ -56,7 +56,7 @@ namespace Card {
 			vertices[indices[i]].texCoord = textcoord[textindex[i]];
 		}
 
-		
+		//models get buffers so program doesn't constantly remakes them
 
 		CARD_ENGINE_INFO("ModelLoaded");
 		return Model(vertices,indices);
