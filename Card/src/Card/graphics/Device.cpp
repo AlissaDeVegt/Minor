@@ -15,7 +15,6 @@ namespace Card {
 
 	Device::~Device()
 	{
-
         vkDestroySampler(device, textureSampler, nullptr);
         vkDestroyImageView(device, textureImageView, nullptr);
 
@@ -77,42 +76,52 @@ namespace Card {
         return MAX_FRAMES_IN_FLIGHT;
     }
 
+    VkBuffer Device::getUniformBuffer(int i)
+    {
+        return uniformBuffers[i];
+    }
+
+    VkSampler Device::getTextureSampler()
+    {
+        return textureSampler;
+    }
+
+    VkImageView Device::getTextureImageView()
+    {
+        return textureImageView;
+    }
+
     #pragma endregion
 
 
-    void Device::drawFrame(Swapchain* swapchain,Renderer* renderer)
+    void Device::drawFrame(Renderer* renderer)
     {
-        //waiting draws
-
-        //-----swapchain
-        vkWaitForFences(device, 1, &swapchain->getInFlightFences()[currentFrame], VK_TRUE, UINT64_MAX);
+        vkWaitForFences(device, 1, &renderer->getSwapchain()->getInFlightFences()[currentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
-        VkResult result = vkAcquireNextImageKHR(device, swapchain->getSwapChain(), UINT64_MAX, swapchain->getImageAvailableSemaphores()[currentFrame], VK_NULL_HANDLE, &imageIndex);
+        VkResult result = vkAcquireNextImageKHR(device, renderer->getSwapchain()->getSwapChain(), UINT64_MAX, renderer->getSwapchain()->getImageAvailableSemaphores()[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-            swapchain->recreateSwapChain(renderer);
+            renderer->getSwapchain()->recreateSwapChain(renderer);//todo create helper funct
             return;
         }
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
             CARD_ENGINE_ERROR("failed to acquire swap chain image!");
         }
 
-        vkResetFences(device, 1, &swapchain->getInFlightFences()[currentFrame]);
-
-        //swapchain
+        vkResetFences(device, 1, &renderer->getSwapchain()->getInFlightFences()[currentFrame]);
 
         vkResetCommandBuffer(*renderer->getCommandBuffer(currentFrame), 0);
 
-        //the actual drawing of triangles done on recordcommandBuffer
-        recordCommandBuffer(*renderer->getCommandBuffer(currentFrame), imageIndex, swapchain, renderer);
+        recordCommandBuffer(*renderer->getCommandBuffer(currentFrame), imageIndex, renderer);
 
-        updateUniformBuffer(currentFrame, swapchain);
+        updateUniformBuffer(currentFrame, renderer->getSwapchain());
+
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        VkSemaphore waitSemaphores[] = { swapchain->getImageAvailableSemaphores()[currentFrame] };
+        VkSemaphore waitSemaphores[] = { renderer->getSwapchain()->getImageAvailableSemaphores()[currentFrame] };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
@@ -121,11 +130,11 @@ namespace Card {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = renderer->getCommandBuffer(currentFrame);
 
-        VkSemaphore signalSemaphores[] = { swapchain->getRenderFinishedSemaphores()[currentFrame] };
+        VkSemaphore signalSemaphores[] = { renderer->getSwapchain()->getRenderFinishedSemaphores()[currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, swapchain->getInFlightFences()[currentFrame]) != VK_SUCCESS) {
+        if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, renderer->getSwapchain()->getInFlightFences()[currentFrame]) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to submit draw command buffer!");
         }
 
@@ -135,7 +144,7 @@ namespace Card {
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
 
-        VkSwapchainKHR swapChains[] = { swapchain->getSwapChain()};
+        VkSwapchainKHR swapChains[] = { renderer->getSwapchain()->getSwapChain()};
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
         presentInfo.pImageIndices = &imageIndex;
@@ -144,7 +153,7 @@ namespace Card {
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window->getframebufferResized()) {
             window->setframebufferResized(false);
-            swapchain->recreateSwapChain(renderer);
+            renderer->getSwapchain()->recreateSwapChain(renderer); //todo create helper function
         }
         else if (result != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to present swap chain image!");
@@ -158,21 +167,23 @@ namespace Card {
         vkDeviceWaitIdle(device);
     }
 
-    void Device::afterSwapchainCreation(Swapchain* swapchain,Renderer* renderer)
+    void Device::afterSwapchainCreation(Renderer* renderer)
     {
         createDescriptorSetLayout(); // todo apart class
-        graphicsPipeline = GraphicsPipeline("C:/dev/Minor/Card/src/Card/shaders/vert.spv", "C:/dev/Minor/Card/src/Card/shaders/frag.spv", device, swapchain->getRenderPass(), &descriptorSetLayout);
+        graphicsPipeline = GraphicsPipeline("C:/dev/Minor/Card/src/Card/shaders/vert.spv", "C:/dev/Minor/Card/src/Card/shaders/frag.spv", device, renderer->getSwapchain()->getRenderPass(), &descriptorSetLayout);
 
-        swapchain->createDepthResources(renderer);
-        swapchain->createFramebuffers();
-        swapchain->createSyncObjects();
+        renderer->getSwapchain()->createDepthResources(renderer); //TODO add helper funct in renderer
+        renderer->getSwapchain()->createFramebuffers();
+        renderer->getSwapchain()->createSyncObjects();
 
         createTextureImage(renderer);
-        createTextureImageView(swapchain);
+        createTextureImageView(renderer->getSwapchain());
         createTextureSampler();
+
         loadModel();
         createVertexBuffer(renderer,models[0]);
         createIndexBuffer(renderer, models[0]);
+
         createUniformBuffers();
         createDescriptorPool();
         createDescriptorSets();
@@ -611,7 +622,7 @@ namespace Card {
         if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to create descriptor set layout!");
         }
-    }
+    } //TODO REMOVE
 
     void Device::createUniformBuffers()
     {
@@ -796,7 +807,7 @@ namespace Card {
     /// </summary>
     /// <param name="commandBuffers"></param>
     /// <param name="imageIndex"></param>
-    void Device::recordCommandBuffer(VkCommandBuffer commandBuffers, uint32_t imageIndex, Swapchain* swapchain,Renderer* renderer)
+    void Device::recordCommandBuffer(VkCommandBuffer commandBuffers, uint32_t imageIndex, Renderer* renderer)
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -808,11 +819,11 @@ namespace Card {
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass =  swapchain->getRenderPass();
-        renderPassInfo.framebuffer = swapchain->getSwapChainFramebuffers()[imageIndex];
+        renderPassInfo.renderPass =  renderer->getSwapchain()->getRenderPass();
+        renderPassInfo.framebuffer = renderer->getSwapchain()->getSwapChainFramebuffers()[imageIndex];
 
         renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = swapchain->getSwapChainExtent();
+        renderPassInfo.renderArea.extent = renderer->getSwapchain()->getSwapChainExtent();
 
         std::array<VkClearValue, 2> clearValues{};
         clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
@@ -829,15 +840,15 @@ namespace Card {
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = static_cast<float> (swapchain->getSwapChainExtent().width);
-        viewport.height = static_cast<float>(swapchain->getSwapChainExtent().height);
+        viewport.width = static_cast<float> (renderer->getSwapchain()->getSwapChainExtent().width);
+        viewport.height = static_cast<float>(renderer->getSwapchain()->getSwapChainExtent().height);
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         vkCmdSetViewport(commandBuffers, 0, 1, &viewport);
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
-        scissor.extent = swapchain->getSwapChainExtent();
+        scissor.extent = renderer->getSwapchain()->getSwapChainExtent();
         vkCmdSetScissor(commandBuffers, 0, 1, &scissor);
 
         vkCmdBindDescriptorSets(commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.getpipelineLayout(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);

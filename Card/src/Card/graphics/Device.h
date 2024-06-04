@@ -63,8 +63,11 @@ namespace Card {
 		Window* getWindow();
 		VkQueue getGraphicsqueue();
 		int getMax_Frames_In_Flight();
+		VkBuffer getUniformBuffer(int i);
+		VkSampler getTextureSampler();
+		VkImageView getTextureImageView();
 
-		void drawFrame(Swapchain* swapchain, Renderer* renderer);
+		void drawFrame(Renderer* renderer);
 		void createInstance();
 		void pickPhysicalDevice();
 		void createLogicalDevice();
@@ -72,16 +75,16 @@ namespace Card {
 		
 		void waitDevice();
 
-		void afterSwapchainCreation(Swapchain* swapchain, Renderer* renderer);
+		void afterSwapchainCreation(Renderer* renderer);
 
 		void createTextureImage(Renderer* renderer);
 		void createVertexBuffer(Renderer* renderer,Model model);
 		void createIndexBuffer(Renderer* renderer,Model model);
-		void createDescriptorSetLayout();
+		void createDescriptorSetLayout();//todo remove
 		void createUniformBuffers();
 		void updateUniformBuffer(uint32_t currentImage, Swapchain* swapchain);
-		void createDescriptorPool();
-		void createDescriptorSets();
+		void createDescriptorPool(); //todo remove
+		void createDescriptorSets();//todo remove
 		void loadModel();
 		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, Renderer* renderer);
@@ -95,7 +98,7 @@ namespace Card {
 		void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 		void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, Renderer* renderer);
 
-		void recordCommandBuffer(VkCommandBuffer commandBuffers, uint32_t imageIndex, Swapchain* swapchain,Renderer* renderer);
+		void recordCommandBuffer(VkCommandBuffer commandBuffers, uint32_t imageIndex, Renderer* renderer);
 
 		bool checkValidationLayerSupport();
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
@@ -133,6 +136,8 @@ namespace Card {
 
 		VkDescriptorPool descriptorPool;
 		VkDescriptorSetLayout descriptorSetLayout;
+		std::vector<VkDescriptorSet> descriptorSets;
+
 
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
@@ -144,7 +149,6 @@ namespace Card {
 		VkImageView textureImageView;
 		VkSampler textureSampler;
 
-		std::vector<VkDescriptorSet> descriptorSets;
 
 
 		std::vector<VkBuffer> uniformBuffers;

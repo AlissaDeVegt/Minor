@@ -1,9 +1,6 @@
 #pragma once
 #include "../Base.h"
 #include "../Logger.h"
-#include "Device.h"
-#include "Window.h"
-#include "Renderer.h"
 
 #define VK_USE_PLATFORM_WIN64_KHR
 #define GLFW_INCLUDE_VULKAN
@@ -29,6 +26,7 @@
 namespace Card {
 	class Device;
 	class Renderer;
+	class Window;
 
 	struct SwapChainSupportDetails {
 		VkSurfaceCapabilitiesKHR capabilities;
@@ -51,9 +49,7 @@ namespace Card {
 		std::vector<VkFence> getInFlightFences();
 		int getMaxFramesInFlight();
 
-		void createSwapChain();
-		void createImageViews();
-		void createRenderPass();
+
 		void createFramebuffers();
 		void createDepthResources(Renderer* renderer);
 		void createSyncObjects();
@@ -70,6 +66,10 @@ namespace Card {
 		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 		VkFormat findDepthFormat();
 	private:
+		void createSwapChain();
+		void createImageViews();
+		void createRenderPass();
+
 		const int MAX_FRAMES_IN_FLIGHT = 2;
 		Device* device;
 

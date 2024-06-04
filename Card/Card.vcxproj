@@ -144,6 +144,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Card\graphics\Descriptor.h" />
     <ClInclude Include="src\Card\graphics\Renderer.h" />
     <ClInclude Include="src\Card\graphics\Device.h" />
     <ClInclude Include="src\Card\graphics\GraphicsPipeline.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="src\Card\graphics\Swapchain.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Card\graphics\Descriptor.cpp" />
     <ClCompile Include="src\Card\graphics\Renderer.cpp" />
     <ClCompile Include="src\Card\graphics\Device.cpp" />
     <ClCompile Include="src\Card\graphics\GraphicsPipeline.cpp" />

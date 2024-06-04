@@ -23,7 +23,6 @@ namespace Card {
 		virtual void start();
 	private:
 		Device* device;
-		Swapchain* swapchain;
 		Renderer* renderer;
 	};
 

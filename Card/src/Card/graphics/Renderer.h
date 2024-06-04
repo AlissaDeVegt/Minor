@@ -11,8 +11,10 @@ namespace Card{
 	class CARD_API Renderer
 	{
 	public:
-		Renderer(Device* device, Swapchain* swapchain);
+		Renderer(Device* device);
 		~Renderer();
+
+		Swapchain* getSwapchain();
 
 		VkCommandBuffer* getCommandBuffer(int  number);
 

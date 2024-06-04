@@ -17,15 +17,14 @@ namespace Card{
 	{
 		window = new Window(850, 400, "Cards");
 		device = new Device(window);
-		swapchain = new Swapchain(device);
-		renderer = new Renderer(device,swapchain);
-		device->afterSwapchainCreation(swapchain,renderer);
+		renderer = new Renderer(device);
+		device->afterSwapchainCreation(renderer);
 		this->start();
 
 		while (!glfwWindowShouldClose(window->getGlfwWindow()))
 		{
 			window->update();
-			device->drawFrame(swapchain,renderer);
+			device->drawFrame(renderer);
 			this->update();
 
 		}

@@ -1,10 +1,10 @@
 #include "Renderer.h"
 namespace Card {
 
-	Renderer::Renderer(Device* device, Swapchain* swapchain)
+	Renderer::Renderer(Device* device)
 	{
 		this->device = device;
-		this->swapchain = swapchain;
+		this->swapchain = new Swapchain(device);
 
 		createCommandPool();
 		createCommandBuffers();
@@ -15,6 +15,11 @@ namespace Card {
 
 		vkDestroyCommandPool(device->getDevice(), commandPool, nullptr);
 
+	}
+
+	Swapchain* Renderer::getSwapchain()
+	{
+		return swapchain;
 	}
 
 	VkCommandBuffer* Renderer::getCommandBuffer(int number)

@@ -1,4 +1,7 @@
 #include "Swapchain.h"
+#include "Device.h"
+#include "Window.h"
+#include "Renderer.h"
 
 namespace Card {
 
