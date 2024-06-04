@@ -80,11 +80,9 @@ namespace Card {
 		void createTextureImage(Renderer* renderer);
 		void createVertexBuffer(Renderer* renderer,Model model);
 		void createIndexBuffer(Renderer* renderer,Model model);
-		void createDescriptorSetLayout();//todo remove
 		void createUniformBuffers();
 		void updateUniformBuffer(uint32_t currentImage, Swapchain* swapchain);
-		void createDescriptorPool(); //todo remove
-		void createDescriptorSets();//todo remove
+
 		void loadModel();
 		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, Renderer* renderer);
@@ -126,28 +124,21 @@ namespace Card {
 		VkDevice device;
 		VkSurfaceKHR surface;
 
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
-
-		VkBuffer vertexBuffer;
-		VkDeviceMemory vertexBufferMemory;
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexBufferMemory;
-
-		VkDescriptorPool descriptorPool;
-		VkDescriptorSetLayout descriptorSetLayout;
-		std::vector<VkDescriptorSet> descriptorSets;
 
 
-		VkQueue graphicsQueue;
-		VkQueue presentQueue;
+		std::vector<Vertex> vertices;		//TODO Make it model special
+		std::vector<uint32_t> indices;		//TODO Make it model special
+		VkBuffer vertexBuffer;				//TODO Make it model special
+		VkDeviceMemory vertexBufferMemory;	//TODO Make it model special
+		VkBuffer indexBuffer;				//TODO Make it model special
+		VkDeviceMemory indexBufferMemory;	//TODO Make it model special
+		VkImage textureImage;				//TODO Make it model special
+		VkDeviceMemory textureImageMemory;	//TODO Make it model special
+		VkImageView textureImageView;		//TODO Make it model special
+		VkSampler textureSampler;			//TODO Make it model special
 
-
-
-		VkImage textureImage;
-		VkDeviceMemory textureImageMemory;
-		VkImageView textureImageView;
-		VkSampler textureSampler;
+		VkQueue graphicsQueue;				
+		VkQueue presentQueue;				
 
 
 

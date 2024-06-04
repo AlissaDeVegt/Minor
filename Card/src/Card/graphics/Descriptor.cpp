@@ -1,25 +1,36 @@
 #include "Descriptor.h"
 #include "Device.h"
 
-Card::Descriptor::Descriptor()
-{
+namespace Card {
 
-}
-
-Card::Descriptor::Descriptor(Device* device, uint32_t MAX_FRAMES_IN_FLIGHT)
-{
-    this->device = device;
-    this->MAX_FRAMES_IN_FLIGHT = MAX_FRAMES_IN_FLIGHT;
-    createDescriptorSetLayout();
-    createDescriptorPool();
-}
-
-Card::Descriptor::~Descriptor()
-{
-
-}
-
-void Card::Descriptor::createDescriptorSetLayout()
+    Descriptor::Descriptor()
+    {
+    
+    }
+    
+    Descriptor::Descriptor(Device* device, uint32_t MAX_FRAMES_IN_FLIGHT)
+    {
+        this->device = device;
+        this->MAX_FRAMES_IN_FLIGHT = MAX_FRAMES_IN_FLIGHT;
+        createDescriptorSetLayout();
+        createDescriptorPool();
+        createDescriptorSets();
+    }
+    
+    Descriptor::~Descriptor()
+    {
+        vkDestroyDescriptorPool(device->getDevice(), descriptorPool, nullptr);
+        vkDestroyDescriptorSetLayout(device->getDevice(), descriptorSetLayout, nullptr);
+    }
+    
+    void Descriptor::bind(VkCommandBuffer commandBuffers, VkPipelineLayout layout, int currentImage)
+    {
+        vkCmdBindDescriptorSets(commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
+    }
+    
+    #pragma region create
+    
+    void Descriptor::createDescriptorSetLayout()
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
@@ -45,8 +56,8 @@ void Card::Descriptor::createDescriptorSetLayout()
         CARD_ENGINE_ERROR("failed to create descriptor set layout!");
     }
 }
-
-void Card::Descriptor::createDescriptorPool()
+    
+    void Descriptor::createDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -65,8 +76,8 @@ void Card::Descriptor::createDescriptorPool()
         CARD_ENGINE_ERROR("failed to create descriptor pool!");
     }
 }
-
-void Card::Descriptor::createDescriptorSets()
+    
+    void Descriptor::createDescriptorSets()
 {
     std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo{};
@@ -112,4 +123,7 @@ void Card::Descriptor::createDescriptorSets()
 
         vkUpdateDescriptorSets(device->getDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
+}
+    #pragma endregion
+
 }
