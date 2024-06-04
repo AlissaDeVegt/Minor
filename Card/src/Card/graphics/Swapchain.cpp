@@ -5,13 +5,15 @@
 
 namespace Card {
 
-    Swapchain::Swapchain(Device* device)
+    Swapchain::Swapchain(Device* device,Renderer* renderer)
     {
         this->device = device;
+        this->renderer = renderer;
 
         createSwapChain();
         createImageViews();
         createRenderPass();
+
     }
 
 	Swapchain::~Swapchain()
@@ -251,7 +253,7 @@ namespace Card {
         }
 	}
 
-    void Swapchain::createDepthResources(Renderer* renderer)
+    void Swapchain::createDepthResources()
     {
         VkFormat depthFormat = findDepthFormat();
         device->createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
@@ -325,7 +327,7 @@ namespace Card {
 
     }
 
-    void Swapchain::recreateSwapChain(Renderer* renderer)
+    void Swapchain::recreateSwapChain()
     {
         int width = 0;
         int height = 0;
@@ -342,7 +344,7 @@ namespace Card {
 
         createSwapChain();
         createImageViews();
-        createDepthResources(renderer);
+        createDepthResources();
         createFramebuffers();
     }
     

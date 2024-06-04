@@ -7,6 +7,7 @@
 #include "graphics/Device.h"
 #include "graphics/Swapchain.h"
 #include "graphics/Renderer.h"
+#include "graphics/Descriptor.h"
 
 namespace Card {
 	class CARD_API Application
@@ -24,6 +25,7 @@ namespace Card {
 	private:
 		Device* device;
 		Renderer* renderer;
+		Descriptor* descriptor;
 	};
 
 	Application* CreateApplication(); //client defined

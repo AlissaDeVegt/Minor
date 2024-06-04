@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "Swapchain.h"
 #include "Renderer.h"
+#include "Descriptor.h"
 
 #define VK_USE_PLATFORM_WIN64_KHR
 #define GLFW_INCLUDE_VULKAN
@@ -75,7 +76,7 @@ namespace Card {
 		
 		void waitDevice();
 
-		void afterSwapchainCreation(Renderer* renderer);
+		void afterSwapchainCreation(Renderer* renderer, Descriptor* descriptor);
 
 		void createTextureImage(Renderer* renderer);
 		void createVertexBuffer(Renderer* renderer,Model model);
@@ -116,6 +117,7 @@ namespace Card {
 
 		GraphicsPipeline graphicsPipeline;
 		Window* window;
+		Descriptor* descriptor;
 
 		//----------------vulkan---------------
 		VkInstance vkinstance;

@@ -4,7 +4,7 @@ namespace Card {
 	Renderer::Renderer(Device* device)
 	{
 		this->device = device;
-		this->swapchain = new Swapchain(device);
+		this->swapchain = new Swapchain(device,this);
 
 		createCommandPool();
 		createCommandBuffers();
@@ -95,5 +95,12 @@ namespace Card {
 		vkQueueWaitIdle(device->getGraphicsqueue());
 
 		vkFreeCommandBuffers(device->getDevice(), commandPool, 1, &commandBuffer);
+	}
+
+	void Renderer::continueSwapChainCreation()
+	{
+		swapchain->createDepthResources();
+		swapchain->createFramebuffers();
+		swapchain->createSyncObjects();
 	}
 }

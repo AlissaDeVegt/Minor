@@ -37,7 +37,7 @@ namespace Card {
 	class CARD_API Swapchain
 	{
 	public:
-		Swapchain(Device* device);
+		Swapchain(Device* device, Renderer* renderer);
 		~Swapchain();
 
 		VkRenderPass getRenderPass();
@@ -51,12 +51,12 @@ namespace Card {
 
 
 		void createFramebuffers();
-		void createDepthResources(Renderer* renderer);
+		void createDepthResources();
 		void createSyncObjects();
 
 		void cleanupSwapChain();
 		void cleanupRenderPass();
-		void recreateSwapChain(Renderer* renderer);
+		void recreateSwapChain();
 
 		static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
@@ -72,6 +72,7 @@ namespace Card {
 
 		const int MAX_FRAMES_IN_FLIGHT = 2;
 		Device* device;
+		Renderer* renderer;
 
 		VkSwapchainKHR swapChain;
 		VkFormat swapChainImageFormat;

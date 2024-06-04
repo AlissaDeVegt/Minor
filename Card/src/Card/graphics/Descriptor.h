@@ -16,12 +16,14 @@ namespace Card {
 		Descriptor(Device* device, uint32_t MAX_FRAMES_IN_FLIGHT);
 		~Descriptor();
 
+		void createDescriptorSets();
 		void bind(VkCommandBuffer commandBuffers, VkPipelineLayout layout, int currentImage);
+		VkDescriptorSetLayout* getLayout();
 
 	private:
 		void createDescriptorSetLayout();
 		void createDescriptorPool();
-		void createDescriptorSets();
+
 		Device* device;
 		VkDescriptorPool descriptorPool;
 		VkDescriptorSetLayout descriptorSetLayout;

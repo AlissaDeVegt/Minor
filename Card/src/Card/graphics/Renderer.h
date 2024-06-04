@@ -20,7 +20,7 @@ namespace Card{
 
 		VkCommandBuffer beginSingleTimeCommands();
 		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-
+		void continueSwapChainCreation();
 
 	private:
 		void createCommandPool();

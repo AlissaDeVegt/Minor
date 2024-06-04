@@ -17,8 +17,9 @@ namespace Card{
 	{
 		window = new Window(850, 400, "Cards");
 		device = new Device(window);
+		descriptor = new Descriptor(device, device->getMax_Frames_In_Flight());
 		renderer = new Renderer(device);
-		device->afterSwapchainCreation(renderer);
+		device->afterSwapchainCreation(renderer,descriptor);
 		this->start();
 
 		while (!glfwWindowShouldClose(window->getGlfwWindow()))

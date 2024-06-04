@@ -11,6 +11,7 @@ namespace Card {
         createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
+        createUniformBuffers();
 	}
 
 	Device::~Device()
@@ -99,7 +100,7 @@ namespace Card {
         VkResult result = vkAcquireNextImageKHR(device, renderer->getSwapchain()->getSwapChain(), UINT64_MAX, renderer->getSwapchain()->getImageAvailableSemaphores()[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-            renderer->getSwapchain()->recreateSwapChain(renderer);//todo create helper funct
+            renderer->getSwapchain()->recreateSwapChain();//todo create helper funct
             return;
         }
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -150,7 +151,7 @@ namespace Card {
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window->getframebufferResized()) {
             window->setframebufferResized(false);
-            renderer->getSwapchain()->recreateSwapChain(renderer); //todo create helper function
+            renderer->getSwapchain()->recreateSwapChain(); //todo create helper function
         }
         else if (result != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to present swap chain image!");
@@ -164,23 +165,22 @@ namespace Card {
         vkDeviceWaitIdle(device);
     }
 
-    void Device::afterSwapchainCreation(Renderer* renderer)//todo add descriptor
+    void Device::afterSwapchainCreation(Renderer* renderer, Descriptor* descriptor )
     {
-        graphicsPipeline = GraphicsPipeline("C:/dev/Minor/Card/src/Card/shaders/vert.spv", "C:/dev/Minor/Card/src/Card/shaders/frag.spv", device, renderer->getSwapchain()->getRenderPass(), &descriptorSetLayout);
+        this->descriptor = descriptor;
+        graphicsPipeline = GraphicsPipeline("C:/dev/Minor/Card/src/Card/shaders/vert.spv", "C:/dev/Minor/Card/src/Card/shaders/frag.spv", device, renderer->getSwapchain()->getRenderPass(), descriptor->getLayout());
 
-        renderer->getSwapchain()->createDepthResources(renderer); //TODO add helper funct in renderer
-        renderer->getSwapchain()->createFramebuffers();           //todo add to normal swapchain make
-        renderer->getSwapchain()->createSyncObjects();            //todo add to normal swapchain make 
+        renderer->continueSwapChainCreation();
 
         createTextureImage(renderer);
         createTextureImageView(renderer->getSwapchain());
         createTextureSampler();
 
+        descriptor->createDescriptorSets();
+
         loadModel();
         createVertexBuffer(renderer,models[0]);
         createIndexBuffer(renderer, models[0]);
-
-        createUniformBuffers();
     }
 
     #pragma region  -------------------------------device setup------------------------------------------
@@ -749,7 +749,7 @@ namespace Card {
         scissor.extent = renderer->getSwapchain()->getSwapChainExtent();
         vkCmdSetScissor(commandBuffers, 0, 1, &scissor);
 
-        vkCmdBindDescriptorSets(commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.getpipelineLayout(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+        descriptor->bind(commandBuffers, graphicsPipeline.getpipelineLayout(), currentFrame);
         
         for (Model model : models) { //render each model
             createVertexBuffer(renderer, model);
@@ -762,7 +762,6 @@ namespace Card {
 
             vkCmdDrawIndexed(commandBuffers, static_cast<uint32_t>(model.getIndices().size()), 1, 0, 0, 0);
         }
-       
 
         vkCmdEndRenderPass(commandBuffers);
 
