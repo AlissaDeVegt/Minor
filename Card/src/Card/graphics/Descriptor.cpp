@@ -8,12 +8,10 @@ namespace Card {
     
     }
     
-    Descriptor::Descriptor(Device* device, uint32_t MAX_FRAMES_IN_FLIGHT)
+    Descriptor::Descriptor(Device* device)
     {
         this->device = device;
-        this->MAX_FRAMES_IN_FLIGHT = MAX_FRAMES_IN_FLIGHT;
         createDescriptorSetLayout();
-        createDescriptorPool();
     }
     
     Descriptor::~Descriptor()
@@ -64,8 +62,9 @@ namespace Card {
         }
     }
     
-    void Descriptor::createDescriptorPool()
+    void Descriptor::createDescriptorPool(int MAX_FRAMES_IN_FLIGHT)
     {
+        this->MAX_FRAMES_IN_FLIGHT = MAX_FRAMES_IN_FLIGHT;
         std::array<VkDescriptorPoolSize, 2> poolSizes{};
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);

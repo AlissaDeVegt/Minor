@@ -11,7 +11,7 @@ namespace Card {
         createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
-        createUniformBuffers();
+
 	}
 
 	Device::~Device()
@@ -24,7 +24,7 @@ namespace Card {
         vkDestroyImage(device, textureImage, nullptr);
         vkFreeMemory(device, textureImageMemory, nullptr);
 
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (size_t i = 0; i < uniformBuffers.size(); i++) {
             vkDestroyBuffer(device, uniformBuffers[i], nullptr);
             vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
         }
@@ -69,11 +69,6 @@ namespace Card {
         return graphicsQueue;
     }
 
-    int Device::getMax_Frames_In_Flight()
-    {
-        return MAX_FRAMES_IN_FLIGHT;
-    }
-
     VkBuffer Device::getUniformBuffer(int i)
     {
         return uniformBuffers[i];
@@ -100,7 +95,7 @@ namespace Card {
         VkResult result = vkAcquireNextImageKHR(device, renderer->getSwapchain()->getSwapChain(), UINT64_MAX, renderer->getSwapchain()->getImageAvailableSemaphores()[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-            renderer->getSwapchain()->recreateSwapChain();//todo create helper funct
+            renderer->getSwapchain()->recreateSwapChain();
             return;
         }
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -151,13 +146,13 @@ namespace Card {
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window->getframebufferResized()) {
             window->setframebufferResized(false);
-            renderer->getSwapchain()->recreateSwapChain(); //todo create helper function
+            renderer->getSwapchain()->recreateSwapChain();
         }
         else if (result != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to present swap chain image!");
         }
 
-        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+        currentFrame = (currentFrame + 1) % renderer->getSwapchain()->getMaxFramesInFlight();
     }
 
     void Device::waitDevice()
@@ -171,6 +166,7 @@ namespace Card {
         graphicsPipeline = GraphicsPipeline("C:/dev/Minor/Card/src/Card/shaders/vert.spv", "C:/dev/Minor/Card/src/Card/shaders/frag.spv", device, renderer->getSwapchain()->getRenderPass(), descriptor->getLayout());
 
         renderer->continueSwapChainCreation();
+        createUniformBuffers(renderer);
 
         createTextureImage(renderer);
         createTextureImageView(renderer->getSwapchain());
@@ -341,7 +337,6 @@ namespace Card {
 
 #pragma endregion
 
-
     void Device::createTextureImage(Renderer* renderer)
     {
         int texWidth, texHeight, texChannels;
@@ -414,7 +409,7 @@ namespace Card {
 
     void Device::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, Renderer* renderer)
     {
-        VkCommandBuffer commandBuffer = renderer->beginSingleTimeCommands(); //TODO renderer
+        VkCommandBuffer commandBuffer = renderer->beginSingleTimeCommands(); //TODO renderer?
 
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -536,10 +531,7 @@ namespace Card {
         CARD_ENGINE_INFO("Succesfuly created TextureImageView");
     }
 
-    bool Device::hasStencilComponent(VkFormat format)
-    {
-        return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
-    }
+
 
     /// <summary>
     /// creates the vertex buffer  and staging buffer
@@ -591,15 +583,15 @@ namespace Card {
 
     }
 
-    void Device::createUniformBuffers()
+    void Device::createUniformBuffers(Renderer* renderer)
     {
         VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-        uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-        uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-        uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+        uniformBuffers.resize(renderer->getSwapchain()->getMaxFramesInFlight());
+        uniformBuffersMemory.resize(renderer->getSwapchain()->getMaxFramesInFlight());
+        uniformBuffersMapped.resize(renderer->getSwapchain()->getMaxFramesInFlight());
 
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (size_t i = 0; i < renderer->getSwapchain()->getMaxFramesInFlight(); i++) {
             createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 
             vkMapMemory(device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
@@ -686,22 +678,8 @@ namespace Card {
         renderer->endSingleTimeCommands(commandBuffer);
     }
 
-    uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
-    {
-        VkPhysicalDeviceMemoryProperties memProperties;
-        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-            if (typeFilter & (1 << i) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-                return i;
-            }
-        }
-
-        CARD_ENGINE_ERROR("failed to find suitable memory type!");
-    }
-
     /// <summary>
     /// record command buffer
-    /// TODO change code to all
     /// </summary>
     /// <param name="commandBuffers"></param>
     /// <param name="imageIndex"></param>
@@ -769,6 +747,27 @@ namespace Card {
             CARD_ENGINE_ERROR("failed to record command buffer!");
         }
 
+    }
+
+
+    #pragma region -------------------------------------checks----------------------------------------
+
+    bool Device::hasStencilComponent(VkFormat format)
+    {
+        return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+    }
+
+    uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+    {
+        VkPhysicalDeviceMemoryProperties memProperties;
+        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+            if (typeFilter & (1 << i) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+                return i;
+            }
+        }
+
+        CARD_ENGINE_ERROR("failed to find suitable memory type!");
     }
 
     /// <summary>
@@ -891,5 +890,7 @@ namespace Card {
 
         return indices;
     }
+
+#pragma endregion
 
 }

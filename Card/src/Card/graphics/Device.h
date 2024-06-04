@@ -63,7 +63,6 @@ namespace Card {
 		VkSurfaceKHR getSurface();
 		Window* getWindow();
 		VkQueue getGraphicsqueue();
-		int getMax_Frames_In_Flight();
 		VkBuffer getUniformBuffer(int i);
 		VkSampler getTextureSampler();
 		VkImageView getTextureImageView();
@@ -81,7 +80,7 @@ namespace Card {
 		void createTextureImage(Renderer* renderer);
 		void createVertexBuffer(Renderer* renderer,Model model);
 		void createIndexBuffer(Renderer* renderer,Model model);
-		void createUniformBuffers();
+		void createUniformBuffers(Renderer* renderer);
 		void updateUniformBuffer(uint32_t currentImage, Swapchain* swapchain);
 
 		void loadModel();
@@ -107,7 +106,6 @@ namespace Card {
 		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 	private:
-		const int MAX_FRAMES_IN_FLIGHT = 2; //todo remove
 		uint32_t currentFrame = 0;
 
 		const std::string MODEL_PATH = "C:/dev/Minor/Card/src/Card/models/vikingroom.obj";
@@ -128,16 +126,16 @@ namespace Card {
 
 
 
-		std::vector<Vertex> vertices;		//TODO Make it model special
-		std::vector<uint32_t> indices;		//TODO Make it model special
-		VkBuffer vertexBuffer;				//TODO Make it model special
-		VkDeviceMemory vertexBufferMemory;	//TODO Make it model special
-		VkBuffer indexBuffer;				//TODO Make it model special
-		VkDeviceMemory indexBufferMemory;	//TODO Make it model special
-		VkImage textureImage;				//TODO Make it model special
-		VkDeviceMemory textureImageMemory;	//TODO Make it model special
-		VkImageView textureImageView;		//TODO Make it model special
-		VkSampler textureSampler;			//TODO Make it model special
+		std::vector<Vertex> vertices;		
+		std::vector<uint32_t> indices;		
+		VkBuffer vertexBuffer;				
+		VkDeviceMemory vertexBufferMemory;	
+		VkBuffer indexBuffer;				
+		VkDeviceMemory indexBufferMemory;	
+		VkImage textureImage;				
+		VkDeviceMemory textureImageMemory;	
+		VkImageView textureImageView;		
+		VkSampler textureSampler;			
 
 		VkQueue graphicsQueue;				
 		VkQueue presentQueue;				
