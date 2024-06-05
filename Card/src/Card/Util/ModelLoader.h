@@ -15,7 +15,7 @@ namespace Card {
 	class CARD_API ModelLoader
 	{
 	public:
-		static Model* readModelFile(std::string modelPath,Device* device, Swapchain* swapchain);
+		static Model* readModelFile(std::string modelPath,Device* device);
 		
 	};
 }

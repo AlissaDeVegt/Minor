@@ -4,7 +4,7 @@
 
 namespace Card {
 
-	Model* ModelLoader::readModelFile(std::string modelPath,Device* device, Swapchain* swapchain)
+	Model* ModelLoader::readModelFile(std::string modelPath,Device* device)
 	{
 		int vertexindex = 0 ;
 		int textureindex = 0;
@@ -58,7 +58,7 @@ namespace Card {
 		}
 
 		CARD_ENGINE_INFO("ModelLoaded");
-		return new Model(vertices,indices, device,swapchain);
+		return new Model(vertices,indices, device);
 	}
 }
 

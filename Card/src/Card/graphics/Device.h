@@ -78,7 +78,8 @@ namespace Card {
 
 		void afterSwapchainCreation(Renderer* renderer, Descriptor* descriptor);
 
-		void createTextureImage(VkImage* textureImage, VkDeviceMemory* textureImageMemory);
+		void createTextureImage(Renderer* renderer);
+
 		void createUniformBuffers(Renderer* renderer);
 		void updateUniformBuffer(uint32_t currentImage, Swapchain* swapchain);
 
@@ -86,12 +87,14 @@ namespace Card {
 		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 		void createCommandPool();
 
-		void loadModel(Swapchain* swapchain);//TODO Leave to APPLICATIOB
-		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory);
-		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
-		void createTextureSampler(VkSampler* sampler);
+		void loadModel();
+		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, Renderer* renderer);
+		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, Renderer* renderer);
+
+		void createTextureSampler();
+		void createTextureImageView(Swapchain* swapchain);
 
 		bool hasStencilComponent(VkFormat format);
 
@@ -124,7 +127,21 @@ namespace Card {
 
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 		VkDevice device;
-		VkSurfaceKHR surface;		
+		VkSurfaceKHR surface;
+
+
+
+		std::vector<Vertex> vertices;		
+		std::vector<uint32_t> indices;	
+
+		VkBuffer vertexBuffer;				
+		VkDeviceMemory vertexBufferMemory;	
+		VkBuffer indexBuffer;				
+		VkDeviceMemory indexBufferMemory;	
+		VkImage textureImage;				
+		VkDeviceMemory textureImageMemory;	
+		VkImageView textureImageView;		
+		VkSampler textureSampler;			
 
 		VkQueue graphicsQueue;				
 		VkQueue presentQueue;				
@@ -146,6 +163,7 @@ namespace Card {
 		const std::vector<const char*> deviceExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
+
 
 		//----------------macro----------------
 #ifdef NDEBUG

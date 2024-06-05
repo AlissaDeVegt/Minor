@@ -6,16 +6,14 @@
 #include <vector>
 
 namespace Card {
-	class Swapchain;
+
 	class Device;
 	class CARD_API Model
 	{
 	public:
-		Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices,Device* device, Swapchain* swapchain);
+		Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices,Device* device);
 		~Model();
-
-		VkImageView getImageview();
-		VkSampler getSampler();
+;
 
 		std::vector<Vertex> getVertices();
 		std::vector<uint32_t> getIndices();
@@ -44,10 +42,7 @@ namespace Card {
 		VkBuffer indexBuffer = VK_NULL_HANDLE;
 		VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
-		VkImage textureImage;
-		VkDeviceMemory textureImageMemory;
-		VkImageView textureImageView;
-		VkSampler textureSampler;
+
 	};
 
 }

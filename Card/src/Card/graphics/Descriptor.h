@@ -17,7 +17,7 @@ namespace Card {
 		~Descriptor();
 
 		void createDescriptorPool(int MAX_FRAMES_IN_FLIGHT);
-		void createDescriptorSets(VkImageView imageView, VkSampler sampler);
+		void createDescriptorSets();
 		void bind(VkCommandBuffer commandBuffers, VkPipelineLayout layout, int currentImage);
 		VkDescriptorSetLayout* getLayout();
 

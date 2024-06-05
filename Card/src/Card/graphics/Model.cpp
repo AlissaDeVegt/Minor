@@ -3,7 +3,7 @@
 #include "Swapchain.h"
 
 namespace Card {
-	Model::Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Device* device, Swapchain* swapchain)
+	Model::Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Device* device)
 	{
 		this->indices = indices;
 		this->vertices = vertices;
@@ -11,18 +11,9 @@ namespace Card {
 		createVertexBuffer();
 		createIndexBuffer();
 
-
-		device->createTextureImage(&textureImage,&textureImageMemory);
-		textureImageView = swapchain->createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,device->getDevice());
-		device->createTextureSampler(&textureSampler);
 	}
 	Model::~Model()
 	{
-		vkDestroySampler(device->getDevice(), textureSampler, nullptr);
-		vkDestroyImageView(device->getDevice(), textureImageView, nullptr);
-
-		vkDestroyImage(device->getDevice(), textureImage, nullptr);
-		vkFreeMemory(device->getDevice(), textureImageMemory, nullptr);
 
 		vkDestroyBuffer(device->getDevice(), indexBuffer, nullptr);
 		vkFreeMemory(device->getDevice(), indexBufferMemory, nullptr);
@@ -33,14 +24,7 @@ namespace Card {
 
 		CARD_ENGINE_WARN("model destroyed");
 	}
-	VkImageView Model::getImageview()
-	{
-		return textureImageView;
-	}
-	VkSampler Model::getSampler()
-	{
-		return textureSampler;
-	}
+
 	std::vector<Vertex> Model::getVertices()
 	{
 		return vertices;

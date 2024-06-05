@@ -83,7 +83,7 @@ namespace Card {
         }
     }
     
-    void Descriptor::createDescriptorSets(VkImageView imageView,VkSampler sampler)
+    void Descriptor::createDescriptorSets()
     {
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
         VkDescriptorSetAllocateInfo allocInfo{};
@@ -106,13 +106,13 @@ namespace Card {
     
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = imageView;
-            imageInfo.sampler = sampler;
+            imageInfo.imageView = device->getTextureImageView();
+            imageInfo.sampler = device->getTextureSampler();
     
             std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
     
             descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[0].dstSet = descriptorSets[i]; //TODO BUG vknullhandle?
+            descriptorWrites[0].dstSet = descriptorSets[i];
             descriptorWrites[0].dstBinding = 0;
             descriptorWrites[0].dstArrayElement = 0;
             descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -120,7 +120,7 @@ namespace Card {
             descriptorWrites[0].pBufferInfo = &bufferInfo;
     
             descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[1].dstSet = descriptorSets[i]; //TODO BUG Vknullhandle 
+            descriptorWrites[1].dstSet = descriptorSets[i];
             descriptorWrites[1].dstBinding = 1;
             descriptorWrites[1].dstArrayElement = 0;
             descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
