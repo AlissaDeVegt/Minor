@@ -3,6 +3,7 @@
 
 #include "Vertex.h"
 #include "Descriptor.h"
+#include "stb_image.h"
 
 #include <vector>
 
@@ -12,7 +13,7 @@ namespace Card {
 	class CARD_API Model
 	{
 	public:
-		Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices,Device* device);
+		Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices,Device* device, std::string path);
 		~Model();
 ;
 
@@ -26,6 +27,9 @@ namespace Card {
 		Model* resetObject();
 
 	private:
+		void createTextureImage(std::string TEXTURE_PATH);
+		void createTextureSampler();
+		void createTextureImageView();
 		void updateVertexBuffer();
 		void createVertexBuffer();
 		void createIndexBuffer();
@@ -38,6 +42,10 @@ namespace Card {
 		glm::vec3 position;
 		glm::vec3 rotation;
 
+		VkImage textureImage;
+		VkDeviceMemory textureImageMemory;
+		VkImageView textureImageView;
+		VkSampler textureSampler;
 
 		VkBuffer vertexBuffer = VK_NULL_HANDLE;
 		VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;

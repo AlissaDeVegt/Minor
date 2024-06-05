@@ -8,11 +8,11 @@ namespace Card {
     
     }
     
-    Descriptor::Descriptor(Device* device)
+    Descriptor::Descriptor(Device* device, VkImageView imageview, VkSampler sampler)
     {
         this->device = device;
         createDescriptorPool(device->getRenderer()->getSwapchain()->getMaxFramesInFlight());
-        createDescriptorSets();
+        createDescriptorSets(imageview,sampler);
     }
     
     Descriptor::~Descriptor()
@@ -49,7 +49,7 @@ namespace Card {
         }
     }
     
-    void Descriptor::createDescriptorSets()
+    void Descriptor::createDescriptorSets(VkImageView imageview, VkSampler sampler)
     {
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, device->getDescriptorSetLayout());
         VkDescriptorSetAllocateInfo allocInfo{};
@@ -72,8 +72,8 @@ namespace Card {
     
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = device->getTextureImageView();
-            imageInfo.sampler = device->getTextureSampler();
+            imageInfo.imageView = imageview;
+            imageInfo.sampler = sampler;
     
             std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
     

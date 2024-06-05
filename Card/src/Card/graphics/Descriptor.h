@@ -13,11 +13,11 @@ namespace Card {
 	{
 	public:
 		Descriptor();
-		Descriptor(Device* device);
+		Descriptor(Device* device,VkImageView imageview, VkSampler sampler);
 		~Descriptor();
 
 		void createDescriptorPool(int MAX_FRAMES_IN_FLIGHT);
-		void createDescriptorSets();
+		void createDescriptorSets(VkImageView imageview, VkSampler sampler);
 		void bind(VkCommandBuffer commandBuffers, VkPipelineLayout layout, int currentImage);
 
 	private:

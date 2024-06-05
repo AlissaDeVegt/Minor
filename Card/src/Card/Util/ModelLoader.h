@@ -15,7 +15,7 @@ namespace Card {
 	class CARD_API ModelLoader
 	{
 	public:
-		static Model* readModelFile(std::string modelPath,Device* device);
+		static Model* readModelFile(std::string modelPath, std::string texturePath,Device* device);
 		
 	};
 }

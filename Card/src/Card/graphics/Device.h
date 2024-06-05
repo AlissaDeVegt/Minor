@@ -80,7 +80,7 @@ namespace Card {
 
 		void afterSwapchainCreation(Renderer* renderer);
 
-		void createTextureImage(Renderer* renderer);
+		
 
 		void createUniformBuffers(Renderer* renderer);
 		void updateUniformBuffer(uint32_t currentImage, Swapchain* swapchain);
@@ -92,11 +92,8 @@ namespace Card {
 
 		void loadModel();
 		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, Renderer* renderer);
-		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, Renderer* renderer);
-
-		void createTextureSampler();
-		void createTextureImageView(Swapchain* swapchain);
+		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
 		bool hasStencilComponent(VkFormat format);
 
@@ -133,12 +130,7 @@ namespace Card {
 		VkDevice device;
 		VkSurfaceKHR surface;
 
-		VkDescriptorSetLayout descriptorSetLayout;
-
-		VkImage textureImage;				
-		VkDeviceMemory textureImageMemory;	
-		VkImageView textureImageView;		
-		VkSampler textureSampler;			
+		VkDescriptorSetLayout descriptorSetLayout;			
 
 		VkQueue graphicsQueue;				
 		VkQueue presentQueue;				

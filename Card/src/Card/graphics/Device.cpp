@@ -17,13 +17,6 @@ namespace Card {
 
 	Device::~Device()
 	{
-        vkDestroySampler(device, textureSampler, nullptr);
-        vkDestroyImageView(device, textureImageView, nullptr);
-
-        vkDestroyImageView(device, textureImageView, nullptr);
-
-        vkDestroyImage(device, textureImage, nullptr);
-        vkFreeMemory(device, textureImageMemory, nullptr);
 
         for (size_t i = 0; i < uniformBuffers.size(); i++) {
             vkDestroyBuffer(device, uniformBuffers[i], nullptr);
@@ -71,16 +64,6 @@ namespace Card {
     VkBuffer Device::getUniformBuffer(int i)
     {
         return uniformBuffers[i];
-    }
-
-    VkSampler Device::getTextureSampler()
-    {
-        return textureSampler;
-    }
-
-    VkImageView Device::getTextureImageView()
-    {
-        return textureImageView;
     }
 
     VkCommandPool Device::getCommandPool()
@@ -182,10 +165,6 @@ namespace Card {
 
         renderer->continueSwapChainCreation();
         createUniformBuffers(renderer);
-
-        createTextureImage(renderer);
-        createTextureImageView(renderer->getSwapchain());
-        createTextureSampler();
 
         loadModel();
         renderer->createCommandBuffers();
@@ -349,39 +328,6 @@ namespace Card {
 
 #pragma endregion
 
-    void Device::createTextureImage(Renderer* renderer)
-    {
-        int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-        if (!pixels) {
-            CARD_ENGINE_ERROR("failed to load texture image!");
-        }
-
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-
-        createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
-
-        void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
-        memcpy(data, pixels, static_cast<size_t>(imageSize));
-        vkUnmapMemory(device, stagingBufferMemory);
-
-        stbi_image_free(pixels);
-
-        createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
-
-        transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,renderer);
-        copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight),renderer);
-        transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,renderer);
-
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-        CARD_ENGINE_INFO("Succesfuly created TextureImage");
-    }
 
     void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
     {
@@ -419,7 +365,7 @@ namespace Card {
         vkBindImageMemory(device, image, imageMemory, 0);
     }
 
-    void Device::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, Renderer* renderer)
+    void Device::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
     {
         VkCommandBuffer commandBuffer = beginSingleTimeCommands(); 
 
@@ -480,7 +426,7 @@ namespace Card {
         endSingleTimeCommands(commandBuffer);
     }
 
-    void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, Renderer* renderer)
+    void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
     {
         VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -502,47 +448,6 @@ namespace Card {
         endSingleTimeCommands(commandBuffer);
     }
 
-    void Device::createTextureSampler()
-    {
-        VkSamplerCreateInfo samplerInfo{};
-        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerInfo.magFilter = VK_FILTER_LINEAR;
-        samplerInfo.minFilter = VK_FILTER_LINEAR;
-        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-
-        samplerInfo.anisotropyEnable = VK_TRUE;
-
-        VkPhysicalDeviceProperties properties{};
-        vkGetPhysicalDeviceProperties(physicalDevice, &properties);
-
-        samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-        samplerInfo.unnormalizedCoordinates = VK_FALSE;
-        samplerInfo.compareEnable = VK_FALSE;
-        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerInfo.mipLodBias = 0.0f;
-        samplerInfo.minLod = 0.0f;
-        samplerInfo.maxLod = 0.0f;
-
-        if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
-            CARD_ENGINE_ERROR("failed to create texture sampler!");
-        }
-        else
-        {
-            CARD_ENGINE_INFO("Succesfuly created TextureImageSampler");
-        }
-
-    }
-
-    void Device::createTextureImageView(Swapchain* swapchain)
-    {
-        textureImageView = swapchain->createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,device);
-        CARD_ENGINE_INFO("Succesfuly created TextureImageView");
-    }
-
     void Device::createUniformBuffers(Renderer* renderer)
     {
         VkDeviceSize bufferSize = sizeof(UniformBufferObject);
@@ -558,7 +463,7 @@ namespace Card {
         }
     }
 
-    void Device::updateUniformBuffer(uint32_t currentImage, Swapchain* swapchain)
+    void Device::updateUniformBuffer(uint32_t currentImage, Swapchain* swapchain) //Todo camera?
     {
         static auto startTime = std::chrono::high_resolution_clock::now();
         auto currentTime = std::chrono::high_resolution_clock::now();
@@ -634,9 +539,9 @@ namespace Card {
 
     void Device::loadModel()
     {
-        models.push_back(ModelLoader::readModelFile(MODEL_PATH,this));
-        models.push_back(ModelLoader::readModelFile(MODEL_PATH,this)->moveObject(glm::vec3{ -1.0f, -1.0f, -1.0f } ));
-        models.push_back(ModelLoader::readModelFile(MODEL_PATH,this)->moveObject(glm::vec3{ 1.0f, 1.0f, 1.0f } ));
+        models.push_back(ModelLoader::readModelFile(MODEL_PATH,TEXTURE_PATH,this));
+        models.push_back(ModelLoader::readModelFile(MODEL_PATH,TEXTURE_PATH,this)->moveObject(glm::vec3{ -1.0f, -1.0f, -1.0f } ));
+        models.push_back(ModelLoader::readModelFile(MODEL_PATH,TEXTURE_PATH,this)->moveObject(glm::vec3{ 1.0f, 1.0f, 1.0f } ));
 
     }
 
