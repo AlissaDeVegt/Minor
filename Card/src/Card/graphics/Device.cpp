@@ -30,6 +30,8 @@ namespace Card {
             vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
         }
 
+        vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
         vkDestroyCommandPool(device, commandPool, nullptr);
 
         graphicsPipeline.destroyPipeline(device);
@@ -84,6 +86,16 @@ namespace Card {
     VkCommandPool Device::getCommandPool()
     {
         return commandPool;
+    }
+
+    VkDescriptorSetLayout Device::getDescriptorSetLayout()
+    {
+        return descriptorSetLayout;
+    }
+
+    Renderer* Device::getRenderer()
+    {
+        return renderer;
     }
 
     #pragma endregion
@@ -162,10 +174,11 @@ namespace Card {
         vkDeviceWaitIdle(device);
     }
 
-    void Device::afterSwapchainCreation(Renderer* renderer, Descriptor* descriptor )
+    void Device::afterSwapchainCreation(Renderer* renderer)
     {
-        this->descriptor = descriptor;
-        graphicsPipeline = GraphicsPipeline("C:/dev/Minor/Card/src/Card/shaders/vert.spv", "C:/dev/Minor/Card/src/Card/shaders/frag.spv", device, renderer->getSwapchain()->getRenderPass(), descriptor->getLayout());
+        this->renderer = renderer;
+        createDescriptorSetLayout();
+        graphicsPipeline = GraphicsPipeline("C:/dev/Minor/Card/src/Card/shaders/vert.spv", "C:/dev/Minor/Card/src/Card/shaders/frag.spv", device, renderer->getSwapchain()->getRenderPass(), &descriptorSetLayout);
 
         renderer->continueSwapChainCreation();
         createUniformBuffers(renderer);
@@ -173,9 +186,6 @@ namespace Card {
         createTextureImage(renderer);
         createTextureImageView(renderer->getSwapchain());
         createTextureSampler();
-
-        descriptor->createDescriptorPool(renderer->getSwapchain()->getMaxFramesInFlight());
-        descriptor->createDescriptorSets();
 
         loadModel();
         renderer->createCommandBuffers();
@@ -684,8 +694,6 @@ namespace Card {
         endSingleTimeCommands(commandBuffer);
     }
 
-
-
     /// <summary>
     /// record command buffer
     /// </summary>
@@ -735,9 +743,10 @@ namespace Card {
         scissor.extent = renderer->getSwapchain()->getSwapChainExtent();
         vkCmdSetScissor(commandBuffers, 0, 1, &scissor);
 
-        descriptor->bind(commandBuffers, graphicsPipeline.getpipelineLayout(), currentFrame);
+       
         
         for (Model* model : models) {
+            model->getDescriptor()->bind(commandBuffers, graphicsPipeline.getpipelineLayout(), currentFrame);
             VkBuffer buffers[] = { model->getVertexBuffer() };
             VkDeviceSize offsets[] = { 0 };
 
@@ -756,7 +765,35 @@ namespace Card {
 
     }
 
+    void Device::createDescriptorSetLayout()
+    {
+        VkDescriptorSetLayoutBinding uboLayoutBinding{};
+        uboLayoutBinding.binding = 0;
+        uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        uboLayoutBinding.descriptorCount = 1;
+        uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
+        VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+        samplerLayoutBinding.binding = 1;
+        samplerLayoutBinding.descriptorCount = 1;
+        samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        samplerLayoutBinding.pImmutableSamplers = nullptr;
+        samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+        std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+        layoutInfo.pBindings = bindings.data();
+
+        if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+            CARD_ENGINE_ERROR("failed to create descriptor set layout!");
+        }
+        else {
+            CARD_ENGINE_INFO("succeeded in creating descriptor set");
+        }
+    }
     #pragma region -------------------------------------checks----------------------------------------
 
     bool Device::hasStencilComponent(VkFormat format)

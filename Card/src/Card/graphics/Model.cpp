@@ -8,9 +8,11 @@ namespace Card {
 		this->indices = indices;
 		this->vertices = vertices;
 		this->device=device;
+
 		createVertexBuffer();
 		createIndexBuffer();
 
+		descriptor = new Descriptor(device);
 	}
 	Model::~Model()
 	{
@@ -42,6 +44,11 @@ namespace Card {
 	VkBuffer Model::getIndexBuffer()
 	{
 		return indexBuffer;
+	}
+
+	Descriptor* Model::getDescriptor()
+	{
+		return descriptor;
 	}
 
 	Model* Model::moveObject(glm::vec3 newPosition)

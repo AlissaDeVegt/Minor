@@ -67,6 +67,8 @@ namespace Card {
 		VkSampler getTextureSampler();
 		VkImageView getTextureImageView();
 		VkCommandPool getCommandPool();
+		VkDescriptorSetLayout getDescriptorSetLayout();
+		Renderer* getRenderer();
 
 		void drawFrame(Renderer* renderer);
 		void createInstance();
@@ -76,7 +78,7 @@ namespace Card {
 		
 		void waitDevice();
 
-		void afterSwapchainCreation(Renderer* renderer, Descriptor* descriptor);
+		void afterSwapchainCreation(Renderer* renderer);
 
 		void createTextureImage(Renderer* renderer);
 
@@ -103,6 +105,8 @@ namespace Card {
 
 		void recordCommandBuffer(VkCommandBuffer commandBuffers, uint32_t imageIndex, Renderer* renderer);
 
+		void createDescriptorSetLayout();
+
 		bool checkValidationLayerSupport();
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 		bool isdeviceSuitable(VkPhysicalDevice device);
@@ -120,7 +124,7 @@ namespace Card {
 
 		GraphicsPipeline graphicsPipeline;
 		Window* window;
-		Descriptor* descriptor;
+		Renderer* renderer;
 
 		//----------------vulkan---------------
 		VkInstance vkinstance;
@@ -129,15 +133,8 @@ namespace Card {
 		VkDevice device;
 		VkSurfaceKHR surface;
 
+		VkDescriptorSetLayout descriptorSetLayout;
 
-
-		std::vector<Vertex> vertices;		
-		std::vector<uint32_t> indices;	
-
-		VkBuffer vertexBuffer;				
-		VkDeviceMemory vertexBufferMemory;	
-		VkBuffer indexBuffer;				
-		VkDeviceMemory indexBufferMemory;	
 		VkImage textureImage;				
 		VkDeviceMemory textureImageMemory;	
 		VkImageView textureImageView;		

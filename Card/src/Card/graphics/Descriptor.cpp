@@ -11,56 +11,22 @@ namespace Card {
     Descriptor::Descriptor(Device* device)
     {
         this->device = device;
-        createDescriptorSetLayout();
+        createDescriptorPool(device->getRenderer()->getSwapchain()->getMaxFramesInFlight());
+        createDescriptorSets();
     }
     
     Descriptor::~Descriptor()
     {
         vkDestroyDescriptorPool(device->getDevice(), descriptorPool, nullptr);
-        vkDestroyDescriptorSetLayout(device->getDevice(), descriptorSetLayout, nullptr);
+
     }
     
     void Descriptor::bind(VkCommandBuffer commandBuffers, VkPipelineLayout layout, int currentImage)
     {
         vkCmdBindDescriptorSets(commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
     }
-
-    VkDescriptorSetLayout* Descriptor::getLayout()
-    {
-        return &descriptorSetLayout;
-    }
     
     #pragma region create
-    
-    void Descriptor::createDescriptorSetLayout()
-    {
-        VkDescriptorSetLayoutBinding uboLayoutBinding{};
-        uboLayoutBinding.binding = 0;
-        uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        uboLayoutBinding.descriptorCount = 1;
-        uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    
-        VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-        samplerLayoutBinding.binding = 1;
-        samplerLayoutBinding.descriptorCount = 1;
-        samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        samplerLayoutBinding.pImmutableSamplers = nullptr;
-        samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-    
-        std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-    
-        VkDescriptorSetLayoutCreateInfo layoutInfo{};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-        layoutInfo.pBindings = bindings.data();
-    
-        if (vkCreateDescriptorSetLayout(device->getDevice(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-            CARD_ENGINE_ERROR("failed to create descriptor set layout!");
-        }
-        else {
-            CARD_ENGINE_INFO("succeeded in creating descriptor set");
-        }
-    }
     
     void Descriptor::createDescriptorPool(int MAX_FRAMES_IN_FLIGHT)
     {
@@ -85,7 +51,7 @@ namespace Card {
     
     void Descriptor::createDescriptorSets()
     {
-        std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, device->getDescriptorSetLayout());
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = descriptorPool;

@@ -2,6 +2,7 @@
 #include "../Base.h"
 
 #include "Vertex.h"
+#include "Descriptor.h"
 
 #include <vector>
 
@@ -19,6 +20,7 @@ namespace Card {
 		std::vector<uint32_t> getIndices();
 		VkBuffer getVertexBuffer();
 		VkBuffer getIndexBuffer();
+		Descriptor* getDescriptor();
 
 		Model* moveObject(glm::vec3 newPosition);
 		Model* resetObject();
@@ -29,6 +31,7 @@ namespace Card {
 		void createIndexBuffer();
 
 		Device* device;
+		Descriptor* descriptor;
 
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
@@ -42,7 +45,7 @@ namespace Card {
 		VkBuffer indexBuffer = VK_NULL_HANDLE;
 		VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
-
+		
 	};
 
 }

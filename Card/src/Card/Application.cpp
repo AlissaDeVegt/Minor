@@ -18,8 +18,7 @@ namespace Card{
 		window = new Window(850, 400, "Cards");
 		device = new Device(window);		
 		renderer = new Renderer(device);
-		descriptor = new Descriptor(device);
-		device->afterSwapchainCreation(renderer,descriptor);
+		device->afterSwapchainCreation(renderer);
 		this->start();
 
 		while (!glfwWindowShouldClose(window->getGlfwWindow()))
