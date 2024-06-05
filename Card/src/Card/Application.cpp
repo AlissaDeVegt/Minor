@@ -16,9 +16,9 @@ namespace Card{
 	void Application::Run()
 	{
 		window = new Window(850, 400, "Cards");
-		device = new Device(window);
-		descriptor = new Descriptor(device);
+		device = new Device(window);		
 		renderer = new Renderer(device);
+		descriptor = new Descriptor(device);
 		device->afterSwapchainCreation(renderer,descriptor);
 		this->start();
 

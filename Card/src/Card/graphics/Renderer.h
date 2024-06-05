@@ -18,18 +18,14 @@ namespace Card{
 
 		VkCommandBuffer* getCommandBuffer(int  number);
 
-		VkCommandBuffer beginSingleTimeCommands();
-		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 		void continueSwapChainCreation();
+		void createCommandBuffers();
 
 	private:
-		void createCommandPool();
-		void createCommandBuffers();
 
 		Device* device;
 		Swapchain* swapchain;
 
-		VkCommandPool commandPool;
 		std::vector<VkCommandBuffer> commandBuffers;
 
 	};

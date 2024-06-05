@@ -10,11 +10,12 @@
 #include <fstream>
 
 namespace Card {
+	class Device;
 
 	class CARD_API ModelLoader
 	{
 	public:
-		static Model readModelFile(std::string modelPath);
+		static Model* readModelFile(std::string modelPath,Device* device, Swapchain* swapchain);
 		
 	};
 }

@@ -11,29 +11,19 @@ namespace Card {
         createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
+        createCommandPool();
 
 	}
 
 	Device::~Device()
 	{
-        vkDestroySampler(device, textureSampler, nullptr);
-        vkDestroyImageView(device, textureImageView, nullptr);
-
-        vkDestroyImageView(device, textureImageView, nullptr);
-
-        vkDestroyImage(device, textureImage, nullptr);
-        vkFreeMemory(device, textureImageMemory, nullptr);
 
         for (size_t i = 0; i < uniformBuffers.size(); i++) {
             vkDestroyBuffer(device, uniformBuffers[i], nullptr);
             vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
         }
 
-        vkDestroyBuffer(device, indexBuffer, nullptr);
-        vkFreeMemory(device, indexBufferMemory, nullptr);
-
-        vkDestroyBuffer(device, vertexBuffer, nullptr);
-        vkFreeMemory(device, vertexBufferMemory, nullptr);
+        vkDestroyCommandPool(device, commandPool, nullptr);
 
         graphicsPipeline.destroyPipeline(device);
 
@@ -74,14 +64,9 @@ namespace Card {
         return uniformBuffers[i];
     }
 
-    VkSampler Device::getTextureSampler()
+    VkCommandPool Device::getCommandPool()
     {
-        return textureSampler;
-    }
-
-    VkImageView Device::getTextureImageView()
-    {
-        return textureImageView;
+        return commandPool;
     }
 
     #pragma endregion
@@ -168,15 +153,14 @@ namespace Card {
         renderer->continueSwapChainCreation();
         createUniformBuffers(renderer);
 
-        createTextureImage(renderer);
-        createTextureImageView(renderer->getSwapchain());
-        createTextureSampler();
+        //createTextureImage();
+        //createTextureImageView(renderer->getSwapchain());
+        //createTextureSampler();
 
-        descriptor->createDescriptorSets();
+        descriptor->createDescriptorPool(renderer->getSwapchain()->getMaxFramesInFlight());
 
-        loadModel();
-        createVertexBuffer(renderer,models[0]);
-        createIndexBuffer(renderer, models[0]);
+        loadModel(renderer->getSwapchain());
+        renderer->createCommandBuffers();
     }
 
     #pragma region  -------------------------------device setup------------------------------------------
@@ -337,10 +321,10 @@ namespace Card {
 
 #pragma endregion
 
-    void Device::createTextureImage(Renderer* renderer)
+    void Device::createTextureImage(VkImage* textureImage, VkDeviceMemory* textureImageMemory)
     {
         int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);//update
         VkDeviceSize imageSize = texWidth * texHeight * 4;
 
         if (!pixels) {
@@ -350,7 +334,7 @@ namespace Card {
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
 
-        createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
         void* data;
         vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
@@ -361,9 +345,9 @@ namespace Card {
 
         createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
 
-        transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,renderer);
-        copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight),renderer);
-        transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,renderer);
+        transitionImageLayout(*textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+        copyBufferToImage(stagingBuffer, *textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+        transitionImageLayout(*textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -371,7 +355,7 @@ namespace Card {
         CARD_ENGINE_INFO("Succesfuly created TextureImage");
     }
 
-    void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+    void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory)
     {
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -388,28 +372,28 @@ namespace Card {
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+        if (vkCreateImage(device, &imageInfo, nullptr, image) != VK_SUCCESS) {
             throw std::runtime_error("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(device, image, &memRequirements);
+        vkGetImageMemoryRequirements(device, *image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(device, &allocInfo, nullptr, imageMemory) != VK_SUCCESS) {
             throw std::runtime_error("failed to allocate image memory!");
         }
 
-        vkBindImageMemory(device, image, imageMemory, 0);
+        vkBindImageMemory(device, *image, *imageMemory, 0);
     }
 
-    void Device::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, Renderer* renderer)
+    void Device::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
     {
-        VkCommandBuffer commandBuffer = renderer->beginSingleTimeCommands(); //TODO renderer?
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands(); 
 
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -465,12 +449,12 @@ namespace Card {
 
         vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
-        renderer->endSingleTimeCommands(commandBuffer);
+        endSingleTimeCommands(commandBuffer);
     }
 
-    void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, Renderer* renderer)
+    void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
     {
-        VkCommandBuffer commandBuffer = renderer->beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
         VkBufferImageCopy region{};
         region.bufferOffset = 0;
@@ -487,10 +471,10 @@ namespace Card {
 
         vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-        renderer->endSingleTimeCommands(commandBuffer);
+        endSingleTimeCommands(commandBuffer);
     }
 
-    void Device::createTextureSampler()
+    void Device::createTextureSampler(VkSampler* sampler)
     {
         VkSamplerCreateInfo samplerInfo{};
         samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -515,71 +499,13 @@ namespace Card {
         samplerInfo.minLod = 0.0f;
         samplerInfo.maxLod = 0.0f;
 
-        if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+        if (vkCreateSampler(device, &samplerInfo, nullptr, sampler) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to create texture sampler!");
         }
         else
         {
             CARD_ENGINE_INFO("Succesfuly created TextureImageSampler");
         }
-
-    }
-
-    void Device::createTextureImageView(Swapchain* swapchain)
-    {
-        textureImageView = swapchain->createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,device);
-        CARD_ENGINE_INFO("Succesfuly created TextureImageView");
-    }
-
-
-
-    /// <summary>
-    /// creates the vertex buffer  and staging buffer
-    /// the official vertex buffer can not be map nor can be touched by the cpu 
-    /// which is why the staging buffer is created 
-    /// so the cpu can in a round about way touch the vertex buffer.
-    /// </summary>
-    void Device::createVertexBuffer(Renderer* renderer, Model model)
-    {
-        VkDeviceSize bufferSize = sizeof(model.getVertices()[0]) * model.getVertices().size();
-
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-        void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, model.getVertices().data(), (size_t)bufferSize);
-        vkUnmapMemory(device, stagingBufferMemory);
-
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
-
-        copyBuffer(stagingBuffer, vertexBuffer, bufferSize,renderer);
-
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-    }
-
-    void Device::createIndexBuffer(Renderer* renderer, Model model)
-    {
-        VkDeviceSize bufferSize = sizeof(model.getIndices()[0]) * model.getIndices().size();
-
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-        void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, model.getIndices().data(), (size_t)bufferSize);
-        vkUnmapMemory(device, stagingBufferMemory);
-
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
-
-        copyBuffer(stagingBuffer, indexBuffer, bufferSize, renderer);
-
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
 
     }
 
@@ -592,7 +518,7 @@ namespace Card {
         uniformBuffersMapped.resize(renderer->getSwapchain()->getMaxFramesInFlight());
 
         for (size_t i = 0; i < renderer->getSwapchain()->getMaxFramesInFlight(); i++) {
-            createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+            createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uniformBuffers[i], &uniformBuffersMemory[i]);
 
             vkMapMemory(device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
         }
@@ -616,11 +542,67 @@ namespace Card {
         memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
     }
 
-    void Device::loadModel()
+    #pragma region commands
+
+    VkCommandBuffer Device::beginSingleTimeCommands()
     {
-        models.push_back(ModelLoader::readModelFile(MODEL_PATH));
-        models.push_back(ModelLoader::readModelFile(MODEL_PATH).moveObject(glm::vec3{ -1.0f, -1.0f, -1.0f } ));
-        models.push_back(ModelLoader::readModelFile(MODEL_PATH).moveObject(glm::vec3{ 1.0f, 1.0f, 1.0f } ));
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandPool = commandPool;
+        allocInfo.commandBufferCount = 1;
+
+        VkCommandBuffer commandBuffer;
+        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+        return commandBuffer;
+    }
+
+    void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer)
+    {
+        vkEndCommandBuffer(commandBuffer);
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffer;
+
+        vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(graphicsQueue);
+
+        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    }
+
+    void Device::createCommandPool()
+    {
+        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+
+        VkCommandPoolCreateInfo poolInfo{};
+        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+            CARD_ENGINE_ERROR("failed to create command pool!");
+        }
+        else {
+            CARD_ENGINE_INFO("succesfully created commandpool");
+        }
+    }
+
+    #pragma endregion
+
+    void Device::loadModel(Swapchain* swapchain)
+    {
+        models.push_back(ModelLoader::readModelFile(MODEL_PATH,this,swapchain));
+        models.push_back(ModelLoader::readModelFile(MODEL_PATH,this,swapchain)->moveObject(glm::vec3{ -1.0f, -1.0f, -1.0f } ));
+        models.push_back(ModelLoader::readModelFile(MODEL_PATH,this,swapchain)->moveObject(glm::vec3{ 1.0f, 1.0f, 1.0f } ));
 
     }
 
@@ -632,7 +614,7 @@ namespace Card {
     /// <param name="properties">properties of the memmory</param>
     /// <param name="buffer">refrence to the buffer</param>
     /// <param name="bufferMemory">refrence to memory of buffer</param>
-    void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+    void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
     {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -640,23 +622,23 @@ namespace Card {
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+        if (vkCreateBuffer(device, &bufferInfo, nullptr, buffer) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to create vertex buffer!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
+        vkGetBufferMemoryRequirements(device, *buffer, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(device, &allocInfo, nullptr, bufferMemory) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to allocate vertex buffer memory!");
         }
 
-        vkBindBufferMemory(device, buffer, bufferMemory, 0);
+        vkBindBufferMemory(device, *buffer, *bufferMemory, 0);
 
 
     }
@@ -667,15 +649,15 @@ namespace Card {
     /// <param name="srcBuffer">buffer from whch is copied</param>
     /// <param name="dstBuffer">buffer to which will be copied</param>
     /// <param name="size">size of buffer</param>
-    void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, Renderer* renderer)
+    void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer* dstBuffer, VkDeviceSize size)
     {
-        VkCommandBuffer commandBuffer = renderer->beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
         copyRegion.size = size;
-        vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+        vkCmdCopyBuffer(commandBuffer, srcBuffer, *dstBuffer, 1, &copyRegion);
 
-        renderer->endSingleTimeCommands(commandBuffer);
+        endSingleTimeCommands(commandBuffer);
     }
 
     /// <summary>
@@ -726,19 +708,18 @@ namespace Card {
         scissor.offset = { 0, 0 };
         scissor.extent = renderer->getSwapchain()->getSwapChainExtent();
         vkCmdSetScissor(commandBuffers, 0, 1, &scissor);
-
-        descriptor->bind(commandBuffers, graphicsPipeline.getpipelineLayout(), currentFrame);
         
-        for (Model model : models) { //render each model
-            createVertexBuffer(renderer, model);
-            createIndexBuffer(renderer, model);
-            VkBuffer vertexBuffers[] = { vertexBuffer};
+        for (Model* model : models) {
+            descriptor->createDescriptorSets(model->getImageview(), model->getSampler());
+            descriptor->bind(commandBuffers, graphicsPipeline.getpipelineLayout(), currentFrame);
+            VkBuffer buffers[] = { model->getVertexBuffer() };
             VkDeviceSize offsets[] = { 0 };
-            vkCmdBindVertexBuffers(commandBuffers, 0, 1, vertexBuffers, offsets);
 
-            vkCmdBindIndexBuffer(commandBuffers, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindVertexBuffers(commandBuffers, 0, 1, buffers, offsets); 
 
-            vkCmdDrawIndexed(commandBuffers, static_cast<uint32_t>(model.getIndices().size()), 1, 0, 0, 0);
+            vkCmdBindIndexBuffer(commandBuffers, model->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+
+            vkCmdDrawIndexed(commandBuffers, static_cast<uint32_t>(model->getIndices().size()), 1, 0, 0, 0);
         }
 
         vkCmdEndRenderPass(commandBuffers);

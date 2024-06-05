@@ -66,6 +66,7 @@ namespace Card {
 		VkBuffer getUniformBuffer(int i);
 		VkSampler getTextureSampler();
 		VkImageView getTextureImageView();
+		VkCommandPool getCommandPool();
 
 		void drawFrame(Renderer* renderer);
 		void createInstance();
@@ -77,24 +78,25 @@ namespace Card {
 
 		void afterSwapchainCreation(Renderer* renderer, Descriptor* descriptor);
 
-		void createTextureImage(Renderer* renderer);
-		void createVertexBuffer(Renderer* renderer,Model model);
-		void createIndexBuffer(Renderer* renderer,Model model);
+		void createTextureImage(VkImage* textureImage, VkDeviceMemory* textureImageMemory);
 		void createUniformBuffers(Renderer* renderer);
 		void updateUniformBuffer(uint32_t currentImage, Swapchain* swapchain);
 
-		void loadModel();
-		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, Renderer* renderer);
-		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, Renderer* renderer);
+		VkCommandBuffer beginSingleTimeCommands();
+		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+		void createCommandPool();
 
-		void createTextureSampler();
-		void createTextureImageView(Swapchain* swapchain);
+		void loadModel(Swapchain* swapchain);//TODO Leave to APPLICATIOB
+		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory);
+		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+		void createTextureSampler(VkSampler* sampler);
 
 		bool hasStencilComponent(VkFormat format);
 
-		void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-		void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, Renderer* renderer);
+		void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
+		void copyBuffer(VkBuffer srcBuffer, VkBuffer* dstBuffer, VkDeviceSize size);
 
 		void recordCommandBuffer(VkCommandBuffer commandBuffers, uint32_t imageIndex, Renderer* renderer);
 
@@ -122,30 +124,17 @@ namespace Card {
 
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 		VkDevice device;
-		VkSurfaceKHR surface;
-
-
-
-		std::vector<Vertex> vertices;		
-		std::vector<uint32_t> indices;		
-		VkBuffer vertexBuffer;				
-		VkDeviceMemory vertexBufferMemory;	
-		VkBuffer indexBuffer;				
-		VkDeviceMemory indexBufferMemory;	
-		VkImage textureImage;				
-		VkDeviceMemory textureImageMemory;	
-		VkImageView textureImageView;		
-		VkSampler textureSampler;			
+		VkSurfaceKHR surface;		
 
 		VkQueue graphicsQueue;				
 		VkQueue presentQueue;				
 
-
+		VkCommandPool commandPool;
 
 		std::vector<VkBuffer> uniformBuffers;
 		std::vector<VkDeviceMemory> uniformBuffersMemory;
 		std::vector<void*> uniformBuffersMapped;
-		std::vector<Model> models;
+		std::vector<Model*> models;
 
 
 		//list of validationlayers
@@ -157,7 +146,6 @@ namespace Card {
 		const std::vector<const char*> deviceExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
-
 
 		//----------------macro----------------
 #ifdef NDEBUG

@@ -1,9 +1,10 @@
 #include "ModelLoader.h"
+#include "../graphics/Device.h"
 
 
 namespace Card {
 
-	Model ModelLoader::readModelFile(std::string modelPath)
+	Model* ModelLoader::readModelFile(std::string modelPath,Device* device, Swapchain* swapchain)
 	{
 		int vertexindex = 0 ;
 		int textureindex = 0;
@@ -56,10 +57,8 @@ namespace Card {
 			vertices[indices[i]].texCoord = textcoord[textindex[i]];
 		}
 
-		//models get buffers so program doesn't constantly remakes them
-
 		CARD_ENGINE_INFO("ModelLoaded");
-		return Model(vertices,indices);
+		return new Model(vertices,indices, device,swapchain);
 	}
 }
 
