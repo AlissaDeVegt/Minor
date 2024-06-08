@@ -8,16 +8,17 @@
 
 namespace Card {
 	class Device;
+	class Camera;
 
 	class Descriptor
 	{
 	public:
 		Descriptor();
-		Descriptor(Device* device,VkImageView imageview, VkSampler sampler);
+		Descriptor(Device* device,VkImageView imageview, VkSampler sampler, Camera* camera);
 		~Descriptor();
 
 		void createDescriptorPool(int MAX_FRAMES_IN_FLIGHT);
-		void createDescriptorSets(VkImageView imageview, VkSampler sampler);
+		void createDescriptorSets(VkImageView imageview, VkSampler sampler, Camera* camera);
 		void bind(VkCommandBuffer commandBuffers, VkPipelineLayout layout, int currentImage);
 
 	private:

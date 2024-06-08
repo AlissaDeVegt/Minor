@@ -28,6 +28,9 @@
     <ClInclude Include="src\Card\graphics\Vertex.h" />
     <ClInclude Include="src\Card\graphics\Swapchain.h" />
     <ClInclude Include="src\Card\graphics\Renderer.h" />
+    <ClInclude Include="src\Card\graphics\Camera.h" />
+    <ClInclude Include="src\Card\graphics\Descriptor.h" />
+    <ClInclude Include="src\Card\SceneBuilder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Card\Application.cpp">
@@ -45,5 +48,8 @@
     <ClCompile Include="src\Card\graphics\Vertex.cpp" />
     <ClCompile Include="src\Card\graphics\Swapchain.cpp" />
     <ClCompile Include="src\Card\graphics\Renderer.cpp" />
+    <ClCompile Include="src\Card\graphics\Camera.cpp" />
+    <ClCompile Include="src\Card\graphics\Descriptor.cpp" />
+    <ClCompile Include="src\Card\SceneBuilder.cpp" />
   </ItemGroup>
 </Project>

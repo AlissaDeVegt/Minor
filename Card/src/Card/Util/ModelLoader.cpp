@@ -4,7 +4,7 @@
 
 namespace Card {
 
-	Model* ModelLoader::readModelFile(std::string modelPath, std::string texturePath,Device* device)
+	Model* ModelLoader::readModelFile(std::string modelPath, std::string texturePath,Device* device, Camera* camera)
 	{
 		int vertexindex = 0 ;
 		int textureindex = 0;
@@ -58,7 +58,7 @@ namespace Card {
 		}
 
 		CARD_ENGINE_INFO("ModelLoaded");
-		return new Model(vertices,indices, device,texturePath);
+		return new Model(vertices,indices, device,texturePath,camera);
 	}
 }
 

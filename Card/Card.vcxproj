@@ -82,7 +82,7 @@
       <AdditionalIncludeDirectories>vendor\glm;vendor\stb;C:\VulkanSDK\1.3.280.0\Include;vendor\GLFW\glfw-3.4.bin.WIN64\include;vendor\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -105,7 +105,7 @@
       <AdditionalIncludeDirectories>vendor\glm;vendor\stb;C:\VulkanSDK\1.3.280.0\Include;vendor\GLFW\glfw-3.4.bin.WIN64\include;vendor\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -144,6 +144,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Card\SceneBuilder.h" />
+    <ClInclude Include="src\Card\graphics\Camera.h" />
     <ClInclude Include="src\Card\graphics\Descriptor.h" />
     <ClInclude Include="src\Card\graphics\Renderer.h" />
     <ClInclude Include="src\Card\graphics\Device.h" />
@@ -161,6 +163,8 @@
     <ClInclude Include="src\Card\graphics\Swapchain.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Card\SceneBuilder.cpp" />
+    <ClCompile Include="src\Card\graphics\Camera.cpp" />
     <ClCompile Include="src\Card\graphics\Descriptor.cpp" />
     <ClCompile Include="src\Card\graphics\Renderer.cpp" />
     <ClCompile Include="src\Card\graphics\Device.cpp" />

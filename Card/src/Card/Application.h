@@ -1,15 +1,15 @@
 #pragma once
 
 #include "Base.h"
-#include "Logger.h"
-
-#include "graphics/Window.h"
-#include "graphics/Device.h"
-#include "graphics/Swapchain.h"
-#include "graphics/Renderer.h"
-#include "graphics/Descriptor.h"
 
 namespace Card {
+	class Camera;
+	class Device;
+	class Window;
+	class Renderer;
+	class SceneBuilder;
+
+
 	class CARD_API Application
 	{
 	public:
@@ -19,13 +19,16 @@ namespace Card {
 		void Run();
 
 		Window* window;
+		SceneBuilder* scenebuilder;
 
-		virtual void update();
 		virtual void start();
+		virtual void update();
+
 	private:
+		Camera* camera;
 		Device* device;
 		Renderer* renderer;
-		Descriptor* descriptor;
+
 	};
 
 	Application* CreateApplication(); //client defined

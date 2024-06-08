@@ -9,6 +9,8 @@
 #include "Swapchain.h"
 #include "Renderer.h"
 #include "Descriptor.h"
+#include "Camera.h"
+#include "../SceneBuilder.h"
 
 #define VK_USE_PLATFORM_WIN64_KHR
 #define GLFW_INCLUDE_VULKAN
@@ -45,12 +47,6 @@ namespace Card {
 		}
 	};
 
-	struct UniformBufferObject {
-		alignas(16) glm::mat4 model;
-		alignas(16) glm::mat4 view;
-		alignas(16) glm::mat4 proj;
-	};
-
 	class CARD_API Device
 	{
 	public: 
@@ -63,9 +59,6 @@ namespace Card {
 		VkSurfaceKHR getSurface();
 		Window* getWindow();
 		VkQueue getGraphicsqueue();
-		VkBuffer getUniformBuffer(int i);
-		VkSampler getTextureSampler();
-		VkImageView getTextureImageView();
 		VkCommandPool getCommandPool();
 		VkDescriptorSetLayout getDescriptorSetLayout();
 		Renderer* getRenderer();
@@ -75,22 +68,16 @@ namespace Card {
 		void pickPhysicalDevice();
 		void createLogicalDevice();
 		void createSurface();
+		void createDescriptorSetLayout();
 		
 		void waitDevice();
 
-		void afterSwapchainCreation(Renderer* renderer);
-
-		
-
-		void createUniformBuffers(Renderer* renderer);
-		void updateUniformBuffer(uint32_t currentImage, Swapchain* swapchain);
+		void afterSwapchainCreation(Renderer* renderer, SceneBuilder* scenebuilder);
 
 		VkCommandBuffer beginSingleTimeCommands();
 		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 		void createCommandPool();
 
-
-		void loadModel();
 		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
@@ -102,8 +89,6 @@ namespace Card {
 
 		void recordCommandBuffer(VkCommandBuffer commandBuffers, uint32_t imageIndex, Renderer* renderer);
 
-		void createDescriptorSetLayout();
-
 		bool checkValidationLayerSupport();
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 		bool isdeviceSuitable(VkPhysicalDevice device);
@@ -114,14 +99,12 @@ namespace Card {
 	private:
 		uint32_t currentFrame = 0;
 
-		const std::string MODEL_PATH = "C:/dev/Minor/Card/src/Card/models/vikingroom.obj";
-		const std::string TEXTURE_PATH = "C:/dev/Minor/Card/src/Card/textures/viking_room.png";
-
 		//-----------wrapper classes-----------
 
 		GraphicsPipeline graphicsPipeline;
 		Window* window;
 		Renderer* renderer;
+		SceneBuilder* scenebuilder;
 
 		//----------------vulkan---------------
 		VkInstance vkinstance;
@@ -136,12 +119,6 @@ namespace Card {
 		VkQueue presentQueue;				
 
 		VkCommandPool commandPool;
-
-		std::vector<VkBuffer> uniformBuffers;
-		std::vector<VkDeviceMemory> uniformBuffersMemory;
-		std::vector<void*> uniformBuffersMapped;
-		std::vector<Model*> models;
-
 
 		//list of validationlayers
 		const std::vector<const char*> validationLayers = {

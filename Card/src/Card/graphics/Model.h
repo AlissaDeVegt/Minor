@@ -10,10 +10,11 @@
 namespace Card {
 
 	class Device;
+	class Camera;
 	class CARD_API Model
 	{
 	public:
-		Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices,Device* device, std::string path);
+		Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices,Device* device, std::string path,Camera* camera);
 		~Model();
 ;
 

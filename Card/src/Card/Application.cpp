@@ -1,5 +1,16 @@
 #include "Application.h"
 
+#include "Logger.h"
+#include "SceneBuilder.h"
+
+#include "graphics/Window.h"
+#include "graphics/Device.h"
+#include "graphics/Swapchain.h"
+#include "graphics/Renderer.h"
+#include "graphics/Descriptor.h"
+#include "graphics/Camera.h"
+
+
 namespace Card{
 
 	Application::Application()
@@ -18,19 +29,22 @@ namespace Card{
 		window = new Window(850, 400, "Cards");
 		device = new Device(window);		
 		renderer = new Renderer(device);
-		device->afterSwapchainCreation(renderer);
-		this->start();
-
+		scenebuilder = new SceneBuilder(device);
+		device->afterSwapchainCreation(renderer, scenebuilder);
+		start();
+		
 		while (!glfwWindowShouldClose(window->getGlfwWindow()))
 		{
 			window->update();
 			device->drawFrame(renderer);
-			this->update();
-
+			update();
 		}
 
 		device->waitDevice();
 	}
+
+
+
 
 	/// <summary>
 	/// Class that gets overwritten by the client.

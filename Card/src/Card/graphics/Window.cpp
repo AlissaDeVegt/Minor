@@ -12,6 +12,15 @@ namespace Card {
         glfwTerminate();
     }
 
+    void Window::setSize(int width, int height)
+    {
+        this->width = width;
+        this->height = height;
+
+        glfwSetWindowSize(window, width, height);
+        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    }
+
 
     /// <summary>
     /// Initialising window
@@ -25,6 +34,8 @@ namespace Card {
         glfwSetWindowUserPointer(window, this);
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
     }
+
+
 
     /// <summary>
     /// Window update

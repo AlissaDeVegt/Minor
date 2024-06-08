@@ -1,9 +1,10 @@
 #include "Model.h"
 #include "Device.h"
 #include "Swapchain.h"
+#include "Camera.h"
 
 namespace Card {
-	Model::Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Device* device,std::string path)
+	Model::Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Device* device,std::string path,Camera* camera)
 	{
 		this->indices = indices;
 		this->vertices = vertices;
@@ -16,8 +17,7 @@ namespace Card {
 		createTextureImageView();
 		createTextureSampler();
 
-
-		descriptor = new Descriptor(device,textureImageView,textureSampler);
+		descriptor = new Descriptor(device,textureImageView,textureSampler,camera);
 	}
 	Model::~Model()
 	{

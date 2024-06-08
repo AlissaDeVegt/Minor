@@ -1,5 +1,6 @@
 #include "Descriptor.h"
 #include "Device.h"
+#include "Camera.h"
 
 namespace Card {
 
@@ -8,11 +9,11 @@ namespace Card {
     
     }
     
-    Descriptor::Descriptor(Device* device, VkImageView imageview, VkSampler sampler)
+    Descriptor::Descriptor(Device* device, VkImageView imageview, VkSampler sampler,Camera* camera)
     {
         this->device = device;
         createDescriptorPool(device->getRenderer()->getSwapchain()->getMaxFramesInFlight());
-        createDescriptorSets(imageview,sampler);
+        createDescriptorSets(imageview,sampler,camera);
     }
     
     Descriptor::~Descriptor()
@@ -47,9 +48,12 @@ namespace Card {
         if (vkCreateDescriptorPool(device->getDevice(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to create descriptor pool!");
         }
+        else {
+            CARD_ENGINE_INFO("success fully created pool");
+        }
     }
     
-    void Descriptor::createDescriptorSets(VkImageView imageview, VkSampler sampler)
+    void Descriptor::createDescriptorSets(VkImageView imageview, VkSampler sampler,Camera* camera)
     {
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, device->getDescriptorSetLayout());
         VkDescriptorSetAllocateInfo allocInfo{};
@@ -62,11 +66,14 @@ namespace Card {
         if (vkAllocateDescriptorSets(device->getDevice(), &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to allocate descriptor sets!");
         }
+        else {
+            CARD_ENGINE_INFO("successfull allocated descriptorsets");
+        }
     
         //loop over each individual descriptor
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = device->getUniformBuffer(i);
+            bufferInfo.buffer = camera->getUniformBuffer(i);
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(UniformBufferObject);
     
@@ -94,6 +101,7 @@ namespace Card {
             descriptorWrites[1].pImageInfo = &imageInfo;
     
             vkUpdateDescriptorSets(device->getDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+
         }
     }
     #pragma endregion

@@ -36,7 +36,9 @@ namespace Card {
 		Window(int width, int height, std::string windowname);
 		~Window();
 
-		void initWindow();
+		void setSize(int width, int height);
+
+
 		void update();
 		void createSurfaceWindow(VkInstance vkinstance, VkSurfaceKHR* surface);
 
@@ -49,8 +51,9 @@ namespace Card {
 
 
 	private:
-		const int width;
-		const int height;
+		void initWindow();
+		int width;
+		int height;
 
 		std::string windowname;
 		GLFWwindow* window;

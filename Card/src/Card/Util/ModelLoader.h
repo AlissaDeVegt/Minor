@@ -11,11 +11,12 @@
 
 namespace Card {
 	class Device;
+	class Camera;
 
 	class CARD_API ModelLoader
 	{
 	public:
-		static Model* readModelFile(std::string modelPath, std::string texturePath,Device* device);
+		static Model* readModelFile(std::string modelPath, std::string texturePath,Device* device,Camera* camera);
 		
 	};
 }
