@@ -12,7 +12,7 @@ namespace Card {
 
     GraphicsPipeline::~GraphicsPipeline()
     {
-
+       
     }
 
     void GraphicsPipeline::destroyPipeline(VkDevice device)

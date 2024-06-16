@@ -25,7 +25,6 @@ namespace Card {
 		virtual void update();
 
 	private:
-		Camera* camera;
 		Device* device;
 		Renderer* renderer;
 

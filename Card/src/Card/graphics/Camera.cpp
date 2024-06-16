@@ -37,17 +37,15 @@ namespace Card {
 		}
 	}
 
-	void Camera::updateUniformBuffer(int currentImage,Device* device)
+	void Camera::setCamera(int currentImage, Device* device)
 	{
-		static auto startTime = std::chrono::high_resolution_clock::now();
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
 		//every object will follow this
 		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)); //Camera? 
+		//ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3{ 0.0f,0.0f,1.0f });
+		ubo.model = glm::mat4(1.0f);
+                    	           
+		ubo.view = glm::lookAt(position, lookat, glm::vec3(0.0f, 0.0f, 1.0f)); 
 
 		ubo.proj = glm::perspective(glm::radians(45.0f), device->getRenderer()->getSwapchain()->getSwapChainExtent().width / (float)device->getRenderer()->getSwapchain()->getSwapChainExtent().height, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
@@ -55,19 +53,21 @@ namespace Card {
 		memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 	}
 
-	void Camera::setCamera(int currentImage, Device* device)
+	void Camera::moveCamera(float x, float y, float z)
 	{
-		//every object will follow this
-		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		this->position = glm::vec3{position.x+x,position.y + y,position.z + z };
+		this->lookat = glm::vec3{ lookat.x + x,lookat.y + y,lookat.z + z };
+	}
 
-		//		                         	           
-		ubo.view = glm::lookAt(position, lookat, glm::vec3(0.0f, 0.0f, 1.0f)); //Camera? 
+	void Camera::rotate(float rot, glm::vec3 rotationAxis)
+	{
+		this->rotiation = this->rotiation + rot;
+		this->rotationAxis = rotationAxis;
 
-		ubo.proj = glm::perspective(glm::radians(45.0f), device->getRenderer()->getSwapchain()->getSwapChainExtent().width / (float)device->getRenderer()->getSwapchain()->getSwapChainExtent().height, 0.1f, 10.0f);
-		ubo.proj[1][1] *= -1;
+		glm::mat4 lookatrot = glm::rotate(glm::mat4(1.0f), glm::radians(rotiation), rotationAxis);
+		lookat = lookatrot * glm::vec4(lookat, 1.0f);
+		lookat = lookat + position;
 
-		memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 	}
 	
 	void Camera::setPosition(glm::vec3 position)

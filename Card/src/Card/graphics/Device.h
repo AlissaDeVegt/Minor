@@ -64,11 +64,7 @@ namespace Card {
 		Renderer* getRenderer();
 
 		void drawFrame(Renderer* renderer);
-		void createInstance();
-		void pickPhysicalDevice();
-		void createLogicalDevice();
-		void createSurface();
-		void createDescriptorSetLayout();
+
 		
 		void waitDevice();
 
@@ -76,7 +72,6 @@ namespace Card {
 
 		VkCommandBuffer beginSingleTimeCommands();
 		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-		void createCommandPool();
 
 		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -97,6 +92,13 @@ namespace Card {
 		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 	private:
+		void createInstance();
+		void pickPhysicalDevice();
+		void createLogicalDevice();
+		void createSurface();
+		void createDescriptorSetLayout();
+		void createCommandPool();
+
 		uint32_t currentFrame = 0;
 
 		//-----------wrapper classes-----------

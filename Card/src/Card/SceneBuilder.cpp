@@ -26,7 +26,7 @@ namespace Card {
 	void SceneBuilder::setCamera()
 	{
 		camera->setPosition(glm::vec3{ 0.0f,0.0f,0.0f });
-		camera->setLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
+		camera->setLookAt(glm::vec3{ 0.0f,-1.0f,0.0f });
 	}
 
 	/// <summary>
@@ -68,6 +68,17 @@ namespace Card {
 		camera->setLookAt(glm::vec3{ lookatX, lookatZ, lookatY });
 	}
 
+	void SceneBuilder::moveCamera(float positionX, float positionY, float positionZ)
+	{
+		camera->moveCamera(positionX, positionZ, positionY);
+	}
+
+	void SceneBuilder::rotateCamera(float rotation, float Xas, float Yas, float Zas)
+	{
+		camera->rotate(rotation, glm::vec3{ Xas,  Zas,  Yas });
+	}
+
+
 	/// <summary>
 	/// add a model to scene.
 	/// </summary>
@@ -89,7 +100,7 @@ namespace Card {
 	/// <param name="z">starting position z</param>
 	void SceneBuilder::addModeltoScene(std::string MODEL_PATH, std::string TEXTURE_PATH, float x, float y, float z)
 	{
-		models->push_back(ModelLoader::readModelFile(MODEL_PATH, TEXTURE_PATH, device, camera)->moveObject(glm::vec3{x,y,z}));
+		models->push_back(ModelLoader::readModelFile(MODEL_PATH, TEXTURE_PATH, device, camera)->moveObject(glm::vec3{x,z,y}));
 	}
 
 	/// <summary>

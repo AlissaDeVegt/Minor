@@ -22,7 +22,6 @@
     <ClInclude Include="src\Card\graphics\Device.h" />
     <ClInclude Include="src\Card\graphics\GraphicsPipeline.h" />
     <ClInclude Include="src\Card\graphics\Model.h" />
-    <ClInclude Include="src\Card\Util\Split.h" />
     <ClInclude Include="src\Card\Util\ModelLoader.h" />
     <ClInclude Include="src\Card\graphics\Window.h" />
     <ClInclude Include="src\Card\graphics\Vertex.h" />
@@ -42,7 +41,6 @@
     <ClCompile Include="src\Card\graphics\Device.cpp" />
     <ClCompile Include="src\Card\graphics\GraphicsPipeline.cpp" />
     <ClCompile Include="src\Card\graphics\Model.cpp" />
-    <ClCompile Include="src\Card\Util\Split.cpp" />
     <ClCompile Include="src\Card\Util\ModelLoader.cpp" />
     <ClCompile Include="src\Card\graphics\Window.cpp" />
     <ClCompile Include="src\Card\graphics\Vertex.cpp" />

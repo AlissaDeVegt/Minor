@@ -16,6 +16,8 @@ namespace Card {
 		void setCamera(float positionX, float positionY, float positionZ );
 		void setCaneraRotation(float lookatX, float lookatY, float lookatZ);
 		void setCamera(float positionX, float positionY, float positionZ , float lookatX, float lookatY, float lookatZ);
+		void moveCamera(float positionX, float positionY, float positionZ);
+		void rotateCamera(float rotation,float Xas, float Yas, float Zas);
 
 		void addModeltoScene(std::string MODEL_PATH, std::string TEXTURE_PATH);
 		void addModeltoScene(std::string MODEL_PATH, std::string TEXTURE_PATH,float x,float y, float z);

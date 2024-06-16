@@ -1,6 +1,6 @@
-workspace "Minor"
+workspace "Minor" --change name to the file directory
 	architecture "x64"
-	startproject "Kaartspel"
+	startproject "Kaartspel" --change name to game project
 	
 	configurations{
 		"Debug",
@@ -27,7 +27,7 @@ project "Card"
 	includedirs{
 		"Card/vendor/glm",
 		"Card/vendor/stb",
-		"C:/VulkanSDK/1.3.280.0/Include",
+		"C:/VulkanSDK/1.3.280.0/Include",-- change location include based own location
 		"Card/vendor/GLFW/glfw-3.4.bin.WIN64/include",
 		"Card/vendor/spdlog/include"
 	}									  
@@ -38,13 +38,13 @@ project "Card"
 	}									  
 										  
 	libdirs{							  
-		"C:/VulkanSDK/1.3.280.0/Lib",
+		"C:/VulkanSDK/1.3.280.0/Lib",-- change location include based own location
 		"Card/vendor/GLFW/glfw-3.4.bin.WIN64/lib-vc2022"
 	}
+	
 
 	filter "system:windows"
 		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines{
@@ -52,25 +52,34 @@ project "Card"
 			"CARD_BUILD_DLL"
 		}
 
+		
+
 		postbuildcommands{
 
-		("{COPY} %{cfg.buildtarget.relpath} ../bin/".. outputdir .. "/Kaartspel" )
+		("{COPY} %{cfg.buildtarget.relpath} ../bin/".. outputdir .. "/Kaartspel" ) -- change /kaartspel to the game directory name
 
 		}
+		
 	filter "configurations:Debug"
 		defines "CARD_DEBUG"
+		staticruntime "off"
+		runtime "Debug"
 		symbols "On"	
 		
-		filter "configurations:Release"
+	filter "configurations:Release"
 		defines "CARD_RELEASE"
+		staticruntime "off"
+		runtime "Release"
 		symbols "On"
 		
-		filter "configurations:Dist"
+	filter "configurations:Dist"
 		defines "CARD_DIST"
+		staticruntime "off"
+		runtime "Release"
 		symbols "On"
 	
-project "Kaartspel"
-	location "Kaartspel"
+project "Kaartspel"  -- example game change to the name of startproject
+	location "Kaartspel" -- example game change to the name of startproject
 	kind "ConsoleApp"
 	language "c++"
 
@@ -82,10 +91,10 @@ project "Kaartspel"
 		"%{prj.name}/src/**.cpp"
 	}
 
-	includedirs{
+	includedirs{ 
 		"Card/vendor/glm",
 		"Card/vendor/stb",
-		"C:/VulkanSDK/1.3.280.0/Include",
+		"C:/VulkanSDK/1.3.280.0/Include", -- change location include based own location
 		"Card/vendor/GLFW/glfw-3.4.bin.WIN64/include",
 		"Card/vendor/spdlog/include",
 		"Card/src/"
@@ -99,7 +108,7 @@ project "Kaartspel"
 	}
 
 	libdirs{
-		"C:/VulkanSDK/1.3.280.0/Lib",
+		"C:/VulkanSDK/1.3.280.0/Lib", -- change location include based own location
 		"Card/vendor/GLFW/glfw-3.4.bin.WIN64/lib-vc2022"
 
 	}
@@ -114,12 +123,18 @@ project "Kaartspel"
 
 	filter "configurations:Debug"
 		defines "CARD_DEBUG"
+		staticruntime "off"
+		runtime "Debug"
 		symbols "On"	
 		
-		filter "configurations:Release"
+	filter "configurations:Release"
 		defines "CARD_RELEASE"
+		staticruntime "off"
+		runtime "Release"
 		symbols "On"
 		
-		filter "configurations:Dist"
+	filter "configurations:Dist"
 		defines "CARD_DIST"
+		staticruntime "off"
+		runtime "Release"
 		symbols "On"

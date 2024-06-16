@@ -4,7 +4,6 @@
 #include "../graphics/Window.h"
 #include "../graphics/Model.h"
 #include "../graphics/Vertex.h"
-#include "Split.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -17,6 +16,7 @@ namespace Card {
 	{
 	public:
 		static Model* readModelFile(std::string modelPath, std::string texturePath,Device* device,Camera* camera);
+		static std::vector<std::string> split(std::string line, char delimeter);
 		
 	};
 }

@@ -38,7 +38,6 @@ namespace Card {
 
 		void setSize(int width, int height);
 
-
 		void update();
 		void createSurfaceWindow(VkInstance vkinstance, VkSurfaceKHR* surface);
 

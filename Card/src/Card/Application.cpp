@@ -35,6 +35,34 @@ namespace Card{
 		
 		while (!glfwWindowShouldClose(window->getGlfwWindow()))
 		{
+			if (glfwGetKey(window->getGlfwWindow(), GLFW_KEY_D) == GLFW_PRESS) {
+				scenebuilder->moveCamera(-0.001f, 0.0f, 0.0f);
+
+			}
+			if (glfwGetKey(window->getGlfwWindow(), GLFW_KEY_A) == GLFW_PRESS) {
+				scenebuilder->moveCamera(0.001f, 0.0f, 0.0f);
+
+			}
+
+			if (glfwGetKey(window->getGlfwWindow(), GLFW_KEY_W) == GLFW_PRESS) {
+				scenebuilder->moveCamera(0.00f, 0.001f, 0.0f);
+
+			}
+
+			if (glfwGetKey(window->getGlfwWindow(), GLFW_KEY_S) == GLFW_PRESS) {
+				scenebuilder->moveCamera(0.0f, -0.001f, 0.0f);
+			}
+
+
+			if (glfwGetKey(window->getGlfwWindow(), GLFW_KEY_UP) == GLFW_PRESS) {
+				scenebuilder->moveCamera(0.00f, 0.000f, 0.001f);
+
+			}
+
+			if (glfwGetKey(window->getGlfwWindow(), GLFW_KEY_DOWN) == GLFW_PRESS) {
+				scenebuilder->moveCamera(0.0f, 0.0f, -0.001f);
+			}
+
 			window->update();
 			device->drawFrame(renderer);
 			update();
