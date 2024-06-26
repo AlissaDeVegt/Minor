@@ -48,7 +48,6 @@ namespace Card {
 
 		GLFWwindow* getGlfwWindow();
 
-
 	private:
 		void initWindow();
 		int width;

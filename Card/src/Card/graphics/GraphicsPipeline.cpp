@@ -194,7 +194,7 @@ namespace Card {
         file.close();
 
         return buffer;
-        ;
+        
     }
 
     VkShaderModule GraphicsPipeline::createShaderModule(const std::vector<char>& code, VkDevice device)

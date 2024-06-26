@@ -19,6 +19,7 @@ namespace Card {
 
 		descriptor = new Descriptor(device,textureImageView,textureSampler,camera);
 	}
+
 	Model::~Model()
 	{
 
@@ -37,10 +38,21 @@ namespace Card {
 		CARD_ENGINE_WARN("model destroyed");
 	}
 
+	glm::vec3 Model::getPosition()
+	{
+		return position;
+	}
+
+	glm::vec3 Model::getRotation()
+	{
+		return rotation;
+	}
+
 	std::vector<Vertex> Model::getVertices()
 	{
 		return vertices;
 	}
+
 	std::vector<uint32_t> Model::getIndices()
 	{
 		return indices;
@@ -72,11 +84,110 @@ namespace Card {
 			v->pos.z = v->pos.z + position.z;
 		}
 
-		updateVertexBuffer();
-
 		return this;
 	}
-	Model* Model::resetObject()
+
+	void Model::move(float posX, float posY, float posZ)
+	{
+		glm::vec3 newPosition = glm::vec3{ posX,posZ,posY };
+
+		position = newPosition;
+
+		for (int i = 0; i < vertices.size(); i++) {
+			Vertex* v = &vertices[i];
+			v->pos.x = v->pos.x + posX;
+			v->pos.y = v->pos.y + posZ;
+			v->pos.z = v->pos.z + posY;
+		}
+	}
+
+	void Model::rotate(float rotX, float rotY, float rotZ)
+	{
+		glm::vec3 newrotation = this->rotation + glm::vec3{ rotX,rotY,rotZ };
+
+		resetRotation(); 
+
+		this->rotation = newrotation;
+
+		glm::vec3 normal = glm::normalize(newrotation);
+		float angle = newrotation.x + newrotation.y + newrotation.z;
+		rotationQuat = glm::quat(cos(glm::radians(angle / 2)), sin(glm::radians(angle / 2)) * normal.x, sin(glm::radians(angle / 2)) * normal.y, sin(glm::radians(angle / 2)) * normal.z); 
+		glm::mat4 rotationmatrix = glm::toMat4(rotationQuat);
+
+		resetSize();
+		resetPosition();
+
+		for (int i = 0; i < vertices.size(); i++) {
+			Vertex* v = &vertices[i];
+
+			if (angle < 0) {
+				v->pos = rotationmatrix / glm::vec4((v->pos), 1.0f);
+			}
+			else {
+				v->pos = rotationmatrix * glm::vec4((v->pos), 1.0f);
+			}
+		}
+
+		move(position.x,position.z,position.y);
+		setSize(size);
+	}
+
+	void Model::resetRotation()
+	{
+		if (rotation.z!=0)
+		{
+			resetRot(glm::vec3{ 0.0f,0.0f,-rotation.z }, -rotation.z);		
+			this->rotation.z = 0;
+		}
+		if (rotation.y != 0)
+		{
+			resetRot(glm::vec3{ 0.0f,-rotation.y,0.0f }, -rotation.y);
+			this->rotation.y = 0;
+		}
+		if (rotation.x != 0)
+		{
+			resetRot(glm::vec3{ -rotation.x,0.0f,0.0f }, -rotation.x);
+			this->rotation.x = 0;
+		}
+
+
+
+	}
+
+	void Model::setSize(float size)
+	{
+		this->size = size;
+		resetPosition();
+
+		for (int i = 0; i < vertices.size(); i++) {
+			Vertex* v = &vertices[i];
+			v->pos.x = v->pos.x * size;			
+
+			v->pos.y = v->pos.y * size;			
+
+			v->pos.z = v->pos.z * size;			
+		}
+
+		move(position.x, position.z, position.y);
+
+	}
+
+	void Model::resetSize()
+	{
+		resetPosition();
+
+		for (int i = 0; i < vertices.size(); i++) {
+			Vertex* v = &vertices[i];
+			v->pos.x = v->pos.x / size;
+			v->pos.y = v->pos.y / size;
+			v->pos.z = v->pos.z / size;
+		}
+
+		move(position.x, position.z, position.y);
+
+	}
+
+	void Model::resetPosition()
 	{
 		for (int i = 0; i < vertices.size(); i++) {
 			Vertex* v = &vertices[i];
@@ -84,7 +195,26 @@ namespace Card {
 			v->pos.y = v->pos.y - position.y;
 			v->pos.z = v->pos.z - position.z;
 		}
-		return this;
+	}
+
+	void Model::resetRot(glm::vec3 axis, float decrees)
+	{
+		glm::vec3 normal = glm::normalize(axis);
+		rotationQuat = glm::quat(cos(glm::radians(decrees / 2)), sin(glm::radians(decrees / 2)) * normal.x, sin(glm::radians(decrees / 2)) * normal.y, sin(glm::radians(decrees / 2)) * normal.z);
+	
+		glm::mat4 rotationmatrix = glm::toMat4(rotationQuat);
+
+		resetSize();
+		resetPosition();
+
+		for (int i = 0; i < vertices.size(); i++) {
+			Vertex* v = &vertices[i];
+
+			v->pos = glm::vec4((v->pos), 1.0f)* rotationmatrix;
+		}
+
+		move(position.x, position.z, position.y);
+		setSize(size);
 	}
 
 	void Model::createTextureImage(std::string TEXTURE_PATH)
@@ -165,10 +295,21 @@ namespace Card {
 
 	void Model::updateVertexBuffer()
 	{
-		vkDestroyBuffer(device->getDevice(), vertexBuffer, nullptr);
-		vkFreeMemory(device->getDevice(), vertexBufferMemory, nullptr);
+		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-		createVertexBuffer();
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		device->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(device->getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, vertices.data(), (size_t)bufferSize);
+		vkUnmapMemory(device->getDevice(), stagingBufferMemory);
+
+		device->copyBuffer(stagingBuffer, &vertexBuffer, bufferSize);
+
+		vkDestroyBuffer(device->getDevice(), stagingBuffer, nullptr);
+		vkFreeMemory(device->getDevice(), stagingBufferMemory, nullptr);
 	}
 
 	void Model::createVertexBuffer()

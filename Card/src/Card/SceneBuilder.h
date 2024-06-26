@@ -13,16 +13,19 @@ namespace Card {
 		~SceneBuilder();
 		Camera* getCamera();
 		void setCamera();
-		void setCamera(float positionX, float positionY, float positionZ );
-		void setCaneraRotation(float lookatX, float lookatY, float lookatZ);
-		void setCamera(float positionX, float positionY, float positionZ , float lookatX, float lookatY, float lookatZ);
-		void moveCamera(float positionX, float positionY, float positionZ);
-		void rotateCamera(float rotation,float Xas, float Yas, float Zas);
+		void setCamera(float X, float Y, float Z );
+		void setViewDistance(float distance);
+		void moveCamera(float X, float Y, float Z);
+		void rotateCamera(float Xdegrees, float Ydegrees, float Zdegrees);
+		void resetCanera();
 
+		void updateModels();
 		void addModeltoScene(std::string MODEL_PATH, std::string TEXTURE_PATH);
 		void addModeltoScene(std::string MODEL_PATH, std::string TEXTURE_PATH,float x,float y, float z);
 		std::vector<Model*> getModels();
+		Model* getModel(int i);
 		void removeModelfromScene(int i);
+
 	private:
 		Device* device;
 		Camera* camera;

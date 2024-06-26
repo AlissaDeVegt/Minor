@@ -15,6 +15,8 @@ namespace Card {
 
 	}
 
+#pragma region ------------------------------------Camera--------------------------------------------------
+
 	Camera* SceneBuilder::getCamera()
 	{
 		return camera;
@@ -26,58 +28,63 @@ namespace Card {
 	void SceneBuilder::setCamera()
 	{
 		camera->setPosition(glm::vec3{ 0.0f,0.0f,0.0f });
-		camera->setLookAt(glm::vec3{ 0.0f,-1.0f,0.0f });
 	}
 
 	/// <summary>
-	/// move camera without changing the rotation.
-	/// can result in change of rotation.
+	/// set the position of the camera
 	/// </summary>
-	/// <param name="positionX">camera position X</param>
-	/// <param name="positionY">camera position Y</param>
-	/// <param name="positionZ">camera position Z</param>
-	void SceneBuilder::setCamera(float positionX, float positionY, float positionZ)
+	/// <param name="X">X axis</param>
+	/// <param name="Y">Y axis</param>
+	/// <param name="Z">z axis</param>
+	void SceneBuilder::setCamera(float X, float Y, float Z)
 	{
-		camera->setPosition(glm::vec3{ positionX, positionZ, positionY });
+		camera->setPosition(glm::vec3{ X, Z, Y });
 	}
 
 	/// <summary>
-	/// rotate camera to look at certain location
+	/// set view distance of the camera
 	/// </summary>
-	/// <param name="lookatX">the x point which the camera will look at</param>
-	/// <param name="lookatY">the y point which the camera will look at</param>
-	/// <param name="lookatZ">the z point which the camera will look at</param>
-	void SceneBuilder::setCaneraRotation(float lookatX, float lookatY, float lookatZ)
+	/// <param name="distance">view distance</param>
+	void SceneBuilder::setViewDistance(float distance)
 	{
-		camera->setLookAt(glm::vec3{ lookatX, lookatZ, lookatY });
-
+		camera->setViewDistance(distance);
 	}
 
 	/// <summary>
-	/// set camera with and change lookpoint
+	/// move the camera
 	/// </summary>
-	/// <param name="positionX">camera position X</param>
-	/// <param name="positionY">camera position Y</param>
-	/// <param name="positionZ">camera position Z</param>
-	/// <param name="lookatX">the x point which the camera will look at</param>
-	/// <param name="lookatY">the y point which the camera will look at</param>
-	/// <param name="lookatZ">the z point which the camera will look at</param>
-	void SceneBuilder::setCamera(float positionX, float positionY, float positionZ, float lookatX, float lookatY, float lookatZ)
+	/// <param name="X">X axis</param>
+	/// <param name="Y">Y axis</param>
+	/// <param name="Z">z axis</param>
+	void SceneBuilder::moveCamera(float X, float Y, float Z)
 	{
-		camera->setPosition(glm::vec3{ positionX, positionZ, positionY });
-		camera->setLookAt(glm::vec3{ lookatX, lookatZ, lookatY });
+		camera->move(X, Z, Y);
 	}
 
-	void SceneBuilder::moveCamera(float positionX, float positionY, float positionZ)
+	void SceneBuilder::rotateCamera(float Xdegrees, float Ydegrees, float Zdegrees)
 	{
-		camera->moveCamera(positionX, positionZ, positionY);
+		camera->rotate(glm::vec3{ Xdegrees,  Zdegrees,  Ydegrees });
 	}
 
-	void SceneBuilder::rotateCamera(float rotation, float Xas, float Yas, float Zas)
+	void SceneBuilder::resetCanera()
 	{
-		camera->rotate(rotation, glm::vec3{ Xas,  Zas,  Yas });
+		camera->reset();
 	}
 
+
+#pragma endregion
+
+#pragma region ------------------------------------Models---------------------------------------------------
+
+
+
+	void SceneBuilder::updateModels()
+	{
+		for (int i = 0; i < models->size(); i++) {
+			models->at(i)->updateVertexBuffer();
+		}
+
+	}
 
 	/// <summary>
 	/// add a model to scene.
@@ -112,6 +119,11 @@ namespace Card {
 		return *models;
 	}
 
+	Model* SceneBuilder::getModel(int i)
+	{
+		return models->at(i);
+	}
+
 	/// <summary>
 	/// remove specific model at index i
 	/// </summary>
@@ -121,5 +133,5 @@ namespace Card {
 		models->erase(models->begin()+i);
 	}
 
-
+#pragma endregion
 }

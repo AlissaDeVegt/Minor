@@ -5,6 +5,11 @@
 #include "Descriptor.h"
 #include "stb_image.h"
 
+
+#include <gtc/quaternion.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <gtx/quaternion.hpp >
+
 #include <vector>
 
 namespace Card {
@@ -17,7 +22,8 @@ namespace Card {
 		Model(std::vector<Vertex> vertices, std::vector<uint32_t> indices,Device* device, std::string path,Camera* camera);
 		~Model();
 ;
-
+		glm::vec3 getPosition();
+		glm::vec3 getRotation();
 		std::vector<Vertex> getVertices();
 		std::vector<uint32_t> getIndices();
 		VkBuffer getVertexBuffer();
@@ -25,13 +31,20 @@ namespace Card {
 		Descriptor* getDescriptor();
 
 		Model* moveObject(glm::vec3 newPosition);
-		Model* resetObject();
+		void resetPosition();
+		void move(float posX, float posY, float posZ);
+		void rotate(float rotX, float rotY, float rotZ);
+		void resetRotation();
+		void setSize(float size);
+		void resetSize();
+		void updateVertexBuffer();
 
 	private:
+		void rotate(float degrees, glm::vec3 axis);
+		void resetRot(glm::vec3 axis, float decrees);
 		void createTextureImage(std::string TEXTURE_PATH);
 		void createTextureSampler();
 		void createTextureImageView();
-		void updateVertexBuffer();
 		void createVertexBuffer();
 		void createIndexBuffer();
 
@@ -41,7 +54,11 @@ namespace Card {
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 		glm::vec3 position;
-		glm::vec3 rotation;
+		float size = 1;
+		glm::vec3 rotation = glm::vec3{0.0f,0.0f,0.0f};
+		glm::vec3 up = glm::vec3{0.0f,0.0f,1.0f};
+		glm::vec3 lookat = glm::vec3{ 0.0f,-1.0f,0.0f };
+		glm::quat rotationQuat{ 0.0f,0.0f,0.0f,0.0f };
 
 		VkImage textureImage;
 		VkDeviceMemory textureImageMemory;

@@ -180,7 +180,6 @@ namespace Card {
         vkCmdSetScissor(commandBuffers, 0, 1, &scissor);
 
         for (Model* model : scenebuilder->getModels()) {
-
             model->getDescriptor()->bind(commandBuffers, graphicsPipeline.getpipelineLayout(), currentFrame);
             VkBuffer buffers[] = { model->getVertexBuffer() };
             VkDeviceSize offsets[] = { 0 };
@@ -188,6 +187,7 @@ namespace Card {
             vkCmdBindVertexBuffers(commandBuffers, 0, 1, buffers, offsets);
             vkCmdBindIndexBuffer(commandBuffers, model->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
             vkCmdDrawIndexed(commandBuffers, static_cast<uint32_t>(model->getIndices().size()), 1, 0, 0, 0);
+
         }
 
         vkCmdEndRenderPass(commandBuffers);
@@ -195,7 +195,6 @@ namespace Card {
         if (vkEndCommandBuffer(commandBuffers) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to record command buffer!");
         }
-
     }
 
     void Device::waitDevice()
@@ -207,13 +206,7 @@ namespace Card {
     {
         this->renderer = renderer;
         this->scenebuilder = scenebuilder;
-
-        graphicsPipeline = GraphicsPipeline("C:/dev/Minor/Card/src/Card/shaders/vert.spv", "C:/dev/Minor/Card/src/Card/shaders/frag.spv", device, renderer->getSwapchain()->getRenderPass(), &descriptorSetLayout);
-
-        renderer->continueSwapChainCreation();
-        scenebuilder->getCamera()->createUniformBuffers();
-
-        renderer->createCommandBuffers();
+        graphicsPipeline = GraphicsPipeline("../Card/src/Card/shaders/vert.spv", "../Card/src/Card/shaders/frag.spv", device, renderer->getSwapchain()->getRenderPass(), &descriptorSetLayout);
     }
 
     void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
