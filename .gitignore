@@ -5,3 +5,7 @@ bin-int/
 
 #files
 *.user
+/Card/vendor/spdlog/.github/workflows
+*.cpp
+/Card/vendor/spdlog/bench
+/Card/vendor/spdlog
