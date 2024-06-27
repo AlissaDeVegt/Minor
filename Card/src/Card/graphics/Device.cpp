@@ -75,6 +75,10 @@ namespace Card {
 
     #pragma endregion
 
+    /// <summary>
+    /// draw a frame 
+    /// </summary>
+    /// <param name="renderer"> pointer to a renderer</param>
     void Device::drawFrame(Renderer* renderer)
     {
         vkWaitForFences(device, 1, &renderer->getSwapchain()->getInFlightFences()[currentFrame], VK_TRUE, UINT64_MAX);
@@ -136,10 +140,11 @@ namespace Card {
     }
 
     /// <summary>
-    /// record command buffer
+    /// record the command buffer to start drawing models 
     /// </summary>
     /// <param name="commandBuffers"></param>
     /// <param name="imageIndex"></param>
+    /// <param name="renderer"></param>
     void Device::recordCommandBuffer(VkCommandBuffer commandBuffers, uint32_t imageIndex, Renderer* renderer)
     {
         VkCommandBufferBeginInfo beginInfo{};
@@ -197,11 +202,19 @@ namespace Card {
         }
     }
 
+    /// <summary>
+    /// make device wait a bit.
+    /// </summary>
     void Device::waitDevice()
     {
         vkDeviceWaitIdle(device);
     }
 
+    /// <summary>
+    /// perform all actions that are needed after swapchain creation.
+    /// </summary>
+    /// <param name="renderer">pointer to the renderer</param>
+    /// <param name="scenebuilder">pointer to the scenebuilder</param>
     void Device::afterSwapchainCreation(Renderer* renderer, SceneBuilder* scenebuilder)
     {
         this->renderer = renderer;
@@ -209,6 +222,17 @@ namespace Card {
         graphicsPipeline = GraphicsPipeline("../Card/src/Card/shaders/vert.spv", "../Card/src/Card/shaders/frag.spv", device, renderer->getSwapchain()->getRenderPass(), &descriptorSetLayout);
     }
 
+    /// <summary>
+    /// create an image for the device
+    /// </summary>
+    /// <param name="width">width of image</param>
+    /// <param name="height">height of image</param>
+    /// <param name="format">format of the image</param>
+    /// <param name="tiling">how the image will be tiled</param>
+    /// <param name="usage">vk flags of how the image will be used</param>
+    /// <param name="properties">memory properies</param>
+    /// <param name="image">reference to image</param>
+    /// <param name="imageMemory">reference to memory location of the image</param>
     void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
     {
         VkImageCreateInfo imageInfo{};
@@ -245,6 +269,13 @@ namespace Card {
         vkBindImageMemory(device, image, imageMemory, 0);
     }
 
+    /// <summary>
+    /// change the image layout
+    /// </summary>
+    /// <param name="image">image</param>
+    /// <param name="format">format</param>
+    /// <param name="oldLayout">old layout</param>
+    /// <param name="newLayout">new layout</param>
     void Device::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
     {
         VkCommandBuffer commandBuffer = beginSingleTimeCommands(); 
@@ -253,11 +284,10 @@ namespace Card {
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
         barrier.oldLayout = oldLayout;
         barrier.newLayout = newLayout;
-
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-
         barrier.image = image;
+
         if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
             barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
@@ -279,21 +309,18 @@ namespace Card {
         if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
             barrier.srcAccessMask = 0;
             barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
             sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
         }
         else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
             sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
         }
         else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
             barrier.srcAccessMask = 0;
             barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
             sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         }
@@ -306,6 +333,13 @@ namespace Card {
         endSingleTimeCommands(commandBuffer);
     }
 
+    /// <summary>
+    /// copy the buffer to image using command
+    /// </summary>
+    /// <param name="buffer"> the buffer that will be copied from</param>
+    /// <param name="image">the image that will be copied to</param>
+    /// <param name="width">width of image</param>
+    /// <param name="height">height of image</param>
     void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
     {
         VkCommandBuffer commandBuffer = beginSingleTimeCommands();
@@ -314,12 +348,10 @@ namespace Card {
         region.bufferOffset = 0;
         region.bufferRowLength = 0;
         region.bufferImageHeight = 0;
-
         region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         region.imageSubresource.mipLevel = 0;
         region.imageSubresource.baseArrayLayer = 0;
         region.imageSubresource.layerCount = 1;
-
         region.imageOffset = { 0, 0, 0 };
         region.imageExtent = { width, height, 1 };
 
@@ -382,8 +414,12 @@ namespace Card {
         endSingleTimeCommands(commandBuffer);
     }
 
-#pragma region commands
+#pragma region -------------------------------------commands----------------------------------------
 
+    /// <summary>
+    /// allows single time commands to start with a commandbuffer;
+    /// </summary>
+    /// <returns>commandbuffers</returns>
     VkCommandBuffer Device::beginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo{};
@@ -404,6 +440,10 @@ namespace Card {
         return commandBuffer;
     }
 
+    /// <summary>
+    /// ends the single time command 
+    /// </summary>
+    /// <param name="commandBuffer">the command buffer in which th single time commands are kept</param>
     void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer)
     {
         vkEndCommandBuffer(commandBuffer);
@@ -419,6 +459,9 @@ namespace Card {
         vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     }
 
+    /// <summary>
+    /// create a commandpool which will hold the command buffers.
+    /// </summary>
     void Device::createCommandPool()
     {
         QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
@@ -438,7 +481,7 @@ namespace Card {
 
 #pragma endregion
 
-#pragma region  -------------------------------device setup------------------------------------------
+#pragma region  -----------------------------------device setup--------------------------------------
 
     /// <summary>
     /// Create instance of vulkan instance
@@ -594,6 +637,9 @@ namespace Card {
         window->createSurfaceWindow(vkinstance, &surface);
     }
 
+    /// <summary>
+    /// create a descriptor set layout that will explain how the descriptorsetlayout
+    /// </summary>
     void Device::createDescriptorSetLayout()
     {
         VkDescriptorSetLayoutBinding uboLayoutBinding{};
@@ -626,13 +672,24 @@ namespace Card {
 
 #pragma endregion
 
-#pragma region -------------------------------------checks----------------------------------------
+#pragma region --------------------------------------checks-----------------------------------------
 
+    /// <summary>
+    /// check if format has stencil component
+    /// </summary>
+    /// <param name="format">the format</param>
+    /// <returns>true if has a stencil component and false if not</returns>
     bool Device::hasStencilComponent(VkFormat format)
     {
         return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
     }
 
+    /// <summary>
+    /// find a suitable type of memory the physical device has.
+    /// </summary>
+    /// <param name="typeFilter"></param>
+    /// <param name="properties">properties the memory must have</param>
+    /// <returns>return index of memory type</returns>
     uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
         VkPhysicalDeviceMemoryProperties memProperties;
@@ -728,7 +785,7 @@ namespace Card {
     /// because there different types of queue we need to find the queues we need.
     /// </summary>
     /// <param name="device">the device from which the queue family is being looked for</param>
-    /// <returns></returns>
+    /// <returns>returns family queu indices</returns>
     QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device)
     {
         QueueFamilyIndices indices;

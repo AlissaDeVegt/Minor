@@ -43,7 +43,6 @@
     <ClCompile Include="src\Card\graphics\Model.cpp" />
     <ClCompile Include="src\Card\Util\ModelLoader.cpp" />
     <ClCompile Include="src\Card\graphics\Window.cpp" />
-    <ClCompile Include="src\Card\graphics\Vertex.cpp" />
     <ClCompile Include="src\Card\graphics\Swapchain.cpp" />
     <ClCompile Include="src\Card\graphics\Renderer.cpp" />
     <ClCompile Include="src\Card\graphics\Camera.cpp" />

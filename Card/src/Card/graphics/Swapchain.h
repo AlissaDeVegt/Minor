@@ -55,7 +55,6 @@ namespace Card {
 		void createSyncObjects();
 
 		void cleanupSwapChain();
-		void cleanupRenderPass();
 		void recreateSwapChain();
 
 		static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);

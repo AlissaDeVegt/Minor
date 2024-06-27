@@ -29,6 +29,10 @@ namespace Card {
     
     #pragma region create
     
+    /// <summary>
+    /// create a descriptor pool based on the max frames in flight
+    /// </summary>
+    /// <param name="MAX_FRAMES_IN_FLIGHT">maximum frames in flight</param>
     void Descriptor::createDescriptorPool(int MAX_FRAMES_IN_FLIGHT)
     {
         this->MAX_FRAMES_IN_FLIGHT = MAX_FRAMES_IN_FLIGHT;
@@ -53,6 +57,12 @@ namespace Card {
         }
     }
     
+    /// <summary>
+    /// create descriptorsets for the models based on the models individual image view of their texture
+    /// </summary>
+    /// <param name="imageview">the texture image view</param>
+    /// <param name="sampler">the sampler of the texture image</param>
+    /// <param name="camera">pointer to camera to get unform buffer objects</param>
     void Descriptor::createDescriptorSets(VkImageView imageview, VkSampler sampler,Camera* camera)
     {
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, device->getDescriptorSetLayout());

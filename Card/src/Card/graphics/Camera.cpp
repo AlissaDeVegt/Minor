@@ -120,18 +120,17 @@ namespace Card {
 	/// rotate using glm rotate function and lookup 
 	/// this is a little bit buggy on the x axis.
 	/// cant work for y axis which should tilt the camera
-	/// TODO maybe use quaternions.
 	/// </summary>
 	/// <param name="rotation">a vec3 that contains the degrees of the rotation</param>
 	void Camera::rotate(glm::vec3 rotation)
 	{
 		this->rotation = rotation;
 		
-		lookat = glm::mat3(glm::rotate(glm::mat4(1.0f), glm::radians(this->rotation.z), up)) * glm::vec3{ lookat.x - position.x, lookat.y - position.y, lookat.z - position.z } + glm::vec3(position);
+		lookat = (glm::mat3(glm::rotate(glm::mat4(1.0f), glm::radians(this->rotation.z), up)) * glm::vec3{ lookat.x - position.x, lookat.y - position.y, lookat.z - position.z }) + glm::vec3(position);
 
 		glm::vec3 rotatearound = glm::cross(lookat,up);
 
-		lookat = glm::mat3(glm::rotate(glm::mat4(1.0f), glm::radians(this->rotation.x), rotatearound)) * glm::vec3{ lookat.x - position.x, lookat.y - position.y, lookat.z - position.z } + glm::vec3(position);
+		lookat = (glm::mat3(glm::rotate(glm::mat4(1.0f), glm::radians(this->rotation.x), rotatearound)) * glm::vec3{ lookat.x , lookat.y , lookat.z }) ;
 
 	}
 

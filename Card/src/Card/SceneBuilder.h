@@ -17,7 +17,7 @@ namespace Card {
 		void setViewDistance(float distance);
 		void moveCamera(float X, float Y, float Z);
 		void rotateCamera(float Xdegrees, float Ydegrees, float Zdegrees);
-		void resetCanera();
+		void resetCamera();
 
 		void updateModels();
 		void addModeltoScene(std::string MODEL_PATH, std::string TEXTURE_PATH);

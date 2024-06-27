@@ -23,6 +23,9 @@ namespace Card {
 		return &commandBuffers[number];
 	}
 
+	/// <summary>
+	/// create commandbuffers
+	/// </summary>
 	void Renderer::createCommandBuffers()
 	{
 		commandBuffers.resize(swapchain->getMaxFramesInFlight());
@@ -41,6 +44,9 @@ namespace Card {
 		}
 	}
 
+	/// <summary>
+	/// continue swapchain creation
+	/// </summary>
 	void Renderer::continueSwapChainCreation()
 	{
 		swapchain->createDepthResources();

@@ -173,7 +173,6 @@
     <ClCompile Include="src\Card\Application.cpp" />
     <ClCompile Include="src\Card\Logger.cpp" />
     <ClCompile Include="src\Card\graphics\Window.cpp" />
-    <ClCompile Include="src\Card\graphics\Vertex.cpp" />
     <ClCompile Include="src\Card\graphics\Swapchain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

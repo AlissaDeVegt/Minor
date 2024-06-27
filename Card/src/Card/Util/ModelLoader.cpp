@@ -4,6 +4,14 @@
 
 namespace Card {
 
+	/// <summary>
+	/// reads a modelfile and creates a model from it.
+	/// </summary>
+	/// <param name="modelPath">path of the modelfile</param>
+	/// <param name="texturePath">path of texture file which will be given to the model</param>
+	/// <param name="device">a pointer to the device</param>
+	/// <param name="camera">a pointer to the camera</param>
+	/// <returns>a pointer of the newly made model</returns>
 	Model* ModelLoader::readModelFile(std::string modelPath, std::string texturePath,Device* device, Camera* camera)
 	{
 		int vertexindex = 0 ;
@@ -43,9 +51,6 @@ namespace Card {
 
 					std::vector<std::string> split = ModelLoader::split(data[i], '/');;
 
-					//TODO unique vertices?
-
-					//indexes in obj files are always one higher than the actaul index in list
 					indices.push_back(stoi(split[0])-1);
 					textindex.push_back(stoi(split[1])-1);
 				}
@@ -61,6 +66,12 @@ namespace Card {
 		return new Model(vertices,indices, device,texturePath,camera);
 	}
 
+	/// <summary>
+	/// splits a string up in smaller strings
+	/// </summary>
+	/// <param name="line">the line that needs to be split</param>
+	/// <param name="delimeter">the part on which it needs to be split</param>
+	/// <returns>returns the list of split strings</returns>
 	std::vector<std::string> ModelLoader::split(std::string line, char delimeter)
 	{
 		std::vector<std::string> data;

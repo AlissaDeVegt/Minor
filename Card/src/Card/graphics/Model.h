@@ -30,17 +30,16 @@ namespace Card {
 		VkBuffer getIndexBuffer();
 		Descriptor* getDescriptor();
 
-		Model* moveObject(glm::vec3 newPosition);
 		void resetPosition();
 		void move(float posX, float posY, float posZ);
 		void rotate(float rotX, float rotY, float rotZ);
 		void resetRotation();
 		void setSize(float size);
 		void resetSize();
-		void updateVertexBuffer();
+		void UpdateVertexBuffer();
 
 	private:
-		void rotate(float degrees, glm::vec3 axis);
+		void rotateIndividual(glm::vec3 axis, float decrees);
 		void resetRot(glm::vec3 axis, float decrees);
 		void createTextureImage(std::string TEXTURE_PATH);
 		void createTextureSampler();

@@ -35,14 +35,24 @@ public:
 		scenebuilder->setViewDistance(100.0f);
 		scenebuilder->rotateCamera(-25.0f,0,0);
 
-		scenebuilder->addModeltoScene("C:/dev/Models/Table.obj", "C:/dev/Models/Color ref1.jpg", 0.0f, -2.0f, -3.0f); 
-		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_006.obj", "C:/dev/Models/models/cards.png", 0.9f, -0.7f, -1.0f); 
-		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_009.obj", "C:/dev/Models/models/cards.png", 0.6f, -0.7f, -1.0f); 
-		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_001.obj", "C:/dev/Models/models/cards.png", 0.3f, -0.7f, -1.0f); 
-		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_002.obj", "C:/dev/Models/models/cards.png", 0.0f, -0.7f, -1.0f); 
-		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_003.obj", "C:/dev/Models/models/cards.png",-0.3f, -0.7f, -1.0f); 
-		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_007.obj", "C:/dev/Models/models/cards.png",-0.6f, -0.7f, -1.0f); 
-		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_008.obj", "C:/dev/Models/models/cards.png",-0.9f, -0.7f, -1.0f); 
+		scenebuilder->addModeltoScene("C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/Table.obj", "C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/Color ref1.jpg", 0.0f, -2.0f, -3.0f); 
+		scenebuilder->addModeltoScene("C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/PLane_006.obj", "C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/cards.png", 0.9f, -0.7f, -1.0f); 
+		scenebuilder->addModeltoScene("C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/PLane_009.obj", "C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/cards.png", 0.6f, -0.7f, -1.0f); 
+		scenebuilder->addModeltoScene("C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/PLane_001.obj", "C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/cards.png", 0.3f, -0.7f, -1.0f); 
+		scenebuilder->addModeltoScene("C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/PLane_002.obj", "C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/cards.png", 0.0f, -0.7f, -1.0f); 
+		scenebuilder->addModeltoScene("C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/PLane_003.obj", "C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/cards.png",-0.3f, -0.7f, -1.0f); 
+		scenebuilder->addModeltoScene("C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/PLane_007.obj", "C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/cards.png",-0.6f, -0.7f, -1.0f); 
+		scenebuilder->addModeltoScene("C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/PLane_008.obj", "C:/Users/Alissa/source/repos/AlissaDeVegt/Minor/Card/src/Card/models/Models/models/cards.png",-0.9f, -0.7f, -1.0f); 
+
+		/*
+		scenebuilder->addModeltoScene("C:/dev/Models/Table.obj", "C:/dev/Models/Color ref1.jpg", 0.0f, -2.0f, -3.0f);
+		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_006.obj", "C:/dev/Models/models/cards.png", 0.9f, -0.7f, -1.0f);
+		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_009.obj", "C:/dev/Models/models/cards.png", 0.6f, -0.7f, -1.0f);
+		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_001.obj", "C:/dev/Models/models/cards.png", 0.3f, -0.7f, -1.0f);
+		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_002.obj", "C:/dev/Models/models/cards.png", 0.0f, -0.7f, -1.0f);
+		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_003.obj", "C:/dev/Models/models/cards.png", -0.3f, -0.7f, -1.0f);
+		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_007.obj", "C:/dev/Models/models/cards.png", -0.6f, -0.7f, -1.0f);
+		scenebuilder->addModeltoScene("C:/dev/Models/models/PLane_008.obj", "C:/dev/Models/models/cards.png", -0.9f, -0.7f, -1.0f);*/
 
 		scenebuilder->getModel(1)->setSize(4.0f);
 		scenebuilder->getModel(2)->setSize(4.0f);

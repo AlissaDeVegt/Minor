@@ -19,7 +19,7 @@ namespace Card {
 	Swapchain::~Swapchain()
 	{
         cleanupSwapChain();
-        cleanupRenderPass();
+        vkDestroyRenderPass(device->getDevice(), renderPass, nullptr);
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(device->getDevice(), renderFinishedSemaphores[i], nullptr);
@@ -72,14 +72,15 @@ namespace Card {
 
     #pragma endregion
 
+	/// <summary>
+	/// create the swapchain
+	/// </summary>
 	void Swapchain::createSwapChain()
 	{
         SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device->getPhysicalDevice(), device->getSurface());
-
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
-
         uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 
         //must make sure we aren't going over limit of the max image
@@ -92,15 +93,11 @@ namespace Card {
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
         createInfo.surface = device->getSurface();
-
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
         createInfo.imageExtent = extent;
-        //always 1 unless stereoscopic 3D application. (VR games)
-        createInfo.imageArrayLayers = 1;
-        //image usage currently is to imidiatly render, 
-        //future could change VK_IMAGE_USAGE_TRANSFER_DST_BIT for post-processing        
+        createInfo.imageArrayLayers = 1; //always 1 unless stereoscopic 3D application. (VR games) 
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
         QueueFamilyIndices indices = device->findQueueFamilies(device->getPhysicalDevice());
@@ -150,6 +147,9 @@ namespace Card {
 
 	}
 
+	/// <summary>
+	/// create the image views of the frames.
+	/// </summary>
 	void Swapchain::createImageViews()
 	{
         swapChainImageViews.resize(swapChainImages.size());
@@ -159,9 +159,11 @@ namespace Card {
         }
 	}
 
+	/// <summary>
+	/// create the render pass
+	/// </summary>
 	void Swapchain::createRenderPass()
 	{
-
         VkAttachmentDescription colorAttachment{};
         colorAttachment.format = swapChainImageFormat;
         colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -208,7 +210,6 @@ namespace Card {
         VkSubpassDependency dependency{};
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         dependency.dstSubpass = 0;
-
         dependency.srcAccessMask = 0;
         dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
@@ -225,6 +226,9 @@ namespace Card {
         }
 	}
 
+	/// <summary>
+	/// create the frame buffers
+	/// </summary>
 	void Swapchain::createFramebuffers()
 	{
         swapChainFramebuffers.resize(swapChainImageViews.size());
@@ -253,6 +257,9 @@ namespace Card {
         }
 	}
 
+    /// <summary>
+    /// create depth resources so depth will be show and things dont get drawn when they shouldn't
+    /// </summary>
     void Swapchain::createDepthResources()
     {
         VkFormat depthFormat = findDepthFormat();
@@ -261,6 +268,9 @@ namespace Card {
         device->transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     }
 
+    /// <summary>
+    /// create create semaphores en flights for sync
+    /// </summary>
     void Swapchain::createSyncObjects()
     {
         imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -283,6 +293,14 @@ namespace Card {
         }
     }
 
+    /// <summary>
+    /// create image view 
+    /// </summary>
+    /// <param name="image"></param>
+    /// <param name="format"></param>
+    /// <param name="aspectFlags"></param>
+    /// <param name="device"></param>
+    /// <returns></returns>
     VkImageView Swapchain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkDevice device)
     {
         VkImageViewCreateInfo viewInfo{};
@@ -304,6 +322,9 @@ namespace Card {
         return imageView;
     }
 
+    /// <summary>
+    /// clean up swapchain so it can be either filled with new info or the program ends.
+    /// </summary>
     void Swapchain::cleanupSwapChain()
     {
         vkDestroyImageView(device->getDevice(), depthImageView, nullptr);
@@ -321,12 +342,9 @@ namespace Card {
         vkDestroySwapchainKHR(device->getDevice(), swapChain, nullptr);
     }
 
-    void Swapchain::cleanupRenderPass()
-    {
-        vkDestroyRenderPass(device->getDevice(), renderPass, nullptr);
-
-    }
-
+    /// <summary>
+    /// recreate a swapchain incase of changes
+    /// </summary>
     void Swapchain::recreateSwapChain()
     {
         int width = 0;
@@ -445,6 +463,13 @@ namespace Card {
         return details;
     }
 
+    /// <summary>
+    /// find the format whuch the physical device supports
+    /// </summary>
+    /// <param name="candidates"></param>
+    /// <param name="tiling"></param>
+    /// <param name="features"></param>
+    /// <returns></returns>
     VkFormat Swapchain::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
     {
         for (VkFormat format : candidates) {
@@ -463,6 +488,10 @@ namespace Card {
     
     }
 
+    /// <summary>
+    /// find a format that supports depth
+    /// </summary>
+    /// <returns></returns>
     VkFormat Swapchain::findDepthFormat()
     {
         return findSupportedFormat(

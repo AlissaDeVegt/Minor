@@ -73,20 +73,12 @@ namespace Card {
 		return descriptor;
 	}
 
-	Model* Model::moveObject(glm::vec3 newPosition)
-	{
-		position = newPosition;
-
-		for (int i = 0; i < vertices.size(); i++) {
-			Vertex* v = &vertices[i];
-			v->pos.x = v->pos.x + position.x;
-			v->pos.y = v->pos.y + position.y;
-			v->pos.z = v->pos.z + position.z;
-		}
-
-		return this;
-	}
-
+	/// <summary>
+	/// move model.
+	/// </summary>
+	/// <param name="posX"> x position </param>
+	/// <param name="posY"> Y position </param>
+	/// <param name="posZ"> z position </param>
 	void Model::move(float posX, float posY, float posZ)
 	{
 		glm::vec3 newPosition = glm::vec3{ posX,posZ,posY };
@@ -101,6 +93,13 @@ namespace Card {
 		}
 	}
 
+	/// <summary>
+	/// change rotation by calling the rotate individual function.
+	/// only do so when rotation is not 0.
+	/// </summary>
+	/// <param name="rotX">x rotation</param>
+	/// <param name="rotY">y rotation</param>
+	/// <param name="rotZ">z rotation</param>
 	void Model::rotate(float rotX, float rotY, float rotZ)
 	{
 		glm::vec3 newrotation = this->rotation + glm::vec3{ rotX,rotY,rotZ };
@@ -109,29 +108,21 @@ namespace Card {
 
 		this->rotation = newrotation;
 
-		glm::vec3 normal = glm::normalize(newrotation);
-		float angle = newrotation.x + newrotation.y + newrotation.z;
-		rotationQuat = glm::quat(cos(glm::radians(angle / 2)), sin(glm::radians(angle / 2)) * normal.x, sin(glm::radians(angle / 2)) * normal.y, sin(glm::radians(angle / 2)) * normal.z); 
-		glm::mat4 rotationmatrix = glm::toMat4(rotationQuat);
 
-		resetSize();
-		resetPosition();
-
-		for (int i = 0; i < vertices.size(); i++) {
-			Vertex* v = &vertices[i];
-
-			if (angle < 0) {
-				v->pos = rotationmatrix / glm::vec4((v->pos), 1.0f);
-			}
-			else {
-				v->pos = rotationmatrix * glm::vec4((v->pos), 1.0f);
-			}
+		if (this->rotation.x != 0) {
+			rotateIndividual(glm::vec3{ 1.0f,0.0f,0.0f }, this->rotation.x);
+		}		
+		if (this->rotation.y != 0) {
+			rotateIndividual(glm::vec3{ 0.0f,1.0f,0.0f }, this->rotation.y);
+		}		
+		if (this->rotation.z != 0) {
+			rotateIndividual(glm::vec3{ 0.0f,0.0f,1.0f }, this->rotation.z);
 		}
-
-		move(position.x,position.z,position.y);
-		setSize(size);
 	}
 
+	/// <summary>
+	/// reset the rotation of the model.
+	/// </summary>
 	void Model::resetRotation()
 	{
 		if (rotation.z!=0)
@@ -154,6 +145,10 @@ namespace Card {
 
 	}
 
+	/// <summary>
+	/// set the size of model.
+	/// </summary>
+	/// <param name="size"> size of model in float</param>
 	void Model::setSize(float size)
 	{
 		this->size = size;
@@ -172,6 +167,9 @@ namespace Card {
 
 	}
 
+	/// <summary>
+	/// reset size to original size.
+	/// </summary>
 	void Model::resetSize()
 	{
 		resetPosition();
@@ -187,6 +185,9 @@ namespace Card {
 
 	}
 
+	/// <summary>
+	/// reset position to origin.
+	/// </summary>
 	void Model::resetPosition()
 	{
 		for (int i = 0; i < vertices.size(); i++) {
@@ -197,6 +198,39 @@ namespace Card {
 		}
 	}
 
+	/// <summary>
+	/// rotate on axis individual.
+	/// </summary>
+	/// <param name="axis">the axis which will be normalised</param>
+	/// <param name="decrees">degrees in which it needs to be  rotated in float</param>
+	void Model::rotateIndividual(glm::vec3 axis, float decrees)
+	{
+		rotationQuat = glm::quat(cos(glm::radians(decrees / 2)), sin(glm::radians(decrees / 2)) * axis.x, sin(glm::radians(decrees / 2)) * axis.y, sin(glm::radians(decrees / 2)) * axis.z);
+		glm::mat4 rotationmatrix = glm::toMat4(rotationQuat);
+
+		resetSize();
+		resetPosition();
+
+		for (int i = 0; i < vertices.size(); i++) {
+			Vertex* v = &vertices[i];
+
+			if (decrees < 0) {
+				v->pos = rotationmatrix / glm::vec4((v->pos), 1.0f);
+			}
+			else {
+				v->pos = rotationmatrix * glm::vec4((v->pos), 1.0f);
+			}
+		}
+
+		move(position.x, position.z, position.y);
+		setSize(size);
+	}
+
+	/// <summary>
+	/// reset rotation of individual axis.
+	/// </summary>
+	/// <param name="axis">the axis</param>
+	/// <param name="decrees">the degrees</param>
 	void Model::resetRot(glm::vec3 axis, float decrees)
 	{
 		glm::vec3 normal = glm::normalize(axis);
@@ -217,6 +251,10 @@ namespace Card {
 		setSize(size);
 	}
 
+	/// <summary>
+	/// creates texture images from texture path.
+	/// </summary>
+	/// <param name="TEXTURE_PATH"> path to texture</param>
 	void Model::createTextureImage(std::string TEXTURE_PATH)
 	{
 		int texWidth, texHeight, texChannels;
@@ -251,6 +289,9 @@ namespace Card {
 		CARD_ENGINE_INFO("Succesfuly created TextureImage");
 	}
 
+	/// <summary>
+	/// create texture sampler, basically an algorithm to calculate the pixel color based on the colors around it.
+	/// </summary>
 	void Model::createTextureSampler()
 	{
 		VkSamplerCreateInfo samplerInfo{};
@@ -286,14 +327,20 @@ namespace Card {
 
 	}
 
+	/// <summary>
+	/// create texture image view, basically it tells the device how to read the file.
+	/// </summary>
 	void Model::createTextureImageView()
 	{
 		textureImageView = device->getRenderer()->getSwapchain()->createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, device->getDevice());
-		CARD_ENGINE_INFO("Succesfuly created TextureImageView");
+		CARD_ENGINE_INFO("Successfully created TextureImageView");
 		
 	}
 
-	void Model::updateVertexBuffer()
+	/// <summary>
+	/// update the data of the vertex buffer, without recreating the buffer.
+	/// </summary>
+	void Model::UpdateVertexBuffer()
 	{
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -312,6 +359,9 @@ namespace Card {
 		vkFreeMemory(device->getDevice(), stagingBufferMemory, nullptr);
 	}
 
+	/// <summary>
+	/// create vertex buffer which contains the information about the vertices.
+	/// </summary>
 	void Model::createVertexBuffer()
 	{
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
@@ -333,6 +383,9 @@ namespace Card {
 		vkFreeMemory(device->getDevice(), stagingBufferMemory, nullptr);
 	}
 
+	/// <summary>
+	/// create index buffer which contains a buffer of which vertex needs to be drawn with which.
+	/// </summary>
 	void Model::createIndexBuffer()
 	{
 		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();

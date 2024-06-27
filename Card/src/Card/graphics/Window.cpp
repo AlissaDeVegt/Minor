@@ -12,6 +12,11 @@ namespace Card {
         glfwTerminate();
     }
 
+    /// <summary>
+    /// set size of the window
+    /// </summary>
+    /// <param name="width">width of window</param>
+    /// <param name="height">height of window</param>
     void Window::setSize(int width, int height)
     {
         this->width = width;
@@ -20,7 +25,6 @@ namespace Card {
         glfwSetWindowSize(window, width, height);
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
     }
-
 
     /// <summary>
     /// Initialising window
@@ -35,16 +39,18 @@ namespace Card {
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
     }
 
-
-
     /// <summary>
     /// Window update
     /// </summary>
     void Window::update(){
         glfwPollEvents();
-
     }
 
+    /// <summary>
+    /// create a surface between the window and vulkan
+    /// </summary>
+    /// <param name="vkinstance"></param>
+    /// <param name="surface"></param>
     void Window::createSurfaceWindow(VkInstance vkinstance, VkSurfaceKHR* surface)
     {
         if (glfwCreateWindowSurface(vkinstance, window, nullptr, surface) != VK_SUCCESS) {
@@ -55,11 +61,19 @@ namespace Card {
         }
     }
 
+    /// <summary>
+    /// if window frame changes
+    /// </summary>
+    /// <param name="window"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
     void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
         auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         app->framebufferResized = true;
     }
+
+    //--------------------------set&get-------------------------------------------
 
     bool Window::getframebufferResized()
     {

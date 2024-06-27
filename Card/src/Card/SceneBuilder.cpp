@@ -2,18 +2,15 @@
 #include "graphics/Device.h"
 
 namespace Card {
+
 	SceneBuilder::SceneBuilder(Device* device)
 	{
 		this->device = device;
-
 		this->camera = camera = new Camera(device);
 		setCamera();
 	}
 
-	SceneBuilder::~SceneBuilder()
-	{
-
-	}
+	SceneBuilder::~SceneBuilder(){ }
 
 #pragma region ------------------------------------Camera--------------------------------------------------
 
@@ -61,12 +58,23 @@ namespace Card {
 		camera->move(X, Z, Y);
 	}
 
+	/// <summary>
+	/// wrapper function for camera rotation
+	/// </summary>
+	/// <param name="Xdegrees">the degrees in float on x as</param>
+	/// <param name="Ydegrees">the degrees in float on y as</param>
+	/// <param name="Zdegrees">the degrees in float on z as</param>
 	void SceneBuilder::rotateCamera(float Xdegrees, float Ydegrees, float Zdegrees)
 	{
+		//rotate camera but z and y is switched because up is on z as.
+		//but to make it understandable for users.
 		camera->rotate(glm::vec3{ Xdegrees,  Zdegrees,  Ydegrees });
 	}
 
-	void SceneBuilder::resetCanera()
+	/// <summary>
+	/// reset camera;
+	/// </summary>
+	void SceneBuilder::resetCamera()
 	{
 		camera->reset();
 	}
@@ -75,13 +83,13 @@ namespace Card {
 #pragma endregion
 
 #pragma region ------------------------------------Models---------------------------------------------------
-
-
-
+	/// <summary>
+	/// update all the models vertexbuffer.
+	/// </summary>
 	void SceneBuilder::updateModels()
 	{
 		for (int i = 0; i < models->size(); i++) {
-			models->at(i)->updateVertexBuffer();
+			models->at(i)->UpdateVertexBuffer();
 		}
 
 	}
@@ -96,7 +104,6 @@ namespace Card {
 		models->push_back(ModelLoader::readModelFile(MODEL_PATH, TEXTURE_PATH, device, camera));
 	}
 
-
 	/// <summary>
 	/// add model to scene with a starting position
 	/// </summary>
@@ -107,7 +114,8 @@ namespace Card {
 	/// <param name="z">starting position z</param>
 	void SceneBuilder::addModeltoScene(std::string MODEL_PATH, std::string TEXTURE_PATH, float x, float y, float z)
 	{
-		models->push_back(ModelLoader::readModelFile(MODEL_PATH, TEXTURE_PATH, device, camera)->moveObject(glm::vec3{x,z,y}));
+		models->push_back(ModelLoader::readModelFile(MODEL_PATH, TEXTURE_PATH, device, camera));
+		models->back()->move(x, y, z);
 	}
 
 	/// <summary>
@@ -119,6 +127,11 @@ namespace Card {
 		return *models;
 	}
 
+	/// <summary>
+	/// get a model at a certain index.
+	/// </summary>
+	/// <param name="i">index of model</param>
+	/// <returns>a pointer of a model</returns>
 	Model* SceneBuilder::getModel(int i)
 	{
 		return models->at(i);

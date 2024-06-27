@@ -20,7 +20,14 @@ namespace Card {
         vkDestroyPipeline(device, graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     }
-
+    /// <summary>
+    /// create graphicspipeline
+    /// </summary>
+    /// <param name="filepathVertex">file path to the vertex shader</param>
+    /// <param name="filepathFragment">file path to the vertex shader</param>
+    /// <param name="device"></param>
+    /// <param name="renderPass"></param>
+    /// <param name="descriptorSetLayout"></param>
     void GraphicsPipeline::createGraphicsPipeline(std::string filepathVertex, std::string filepathFragment, VkDevice device, VkRenderPass renderPass, VkDescriptorSetLayout* descriptorSetLayout)
     {
         //creating/getting shaders
@@ -38,8 +45,6 @@ namespace Card {
         vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
         vertShaderStageInfo.module = vertShaderModule;
         vertShaderStageInfo.pName = "main";
-        //vertShaderStageInfo.pSpecializationInfo  
-        //'You can use a single shader module where its behavior can be configured at pipeline creation by specifying different values for the constants used in it.'
 
         VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
         fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -155,9 +160,6 @@ namespace Card {
         pipelineInfo.renderPass = renderPass;
         pipelineInfo.subpass = 0;
 
-        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
-        pipelineInfo.basePipelineIndex = -1; // Optional
-
         if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
             CARD_ENGINE_ERROR("failed to create graphics pipeline!");
         }
@@ -197,6 +199,12 @@ namespace Card {
         
     }
 
+    /// <summary>
+    /// create individual shader modules
+    /// </summary>
+    /// <param name="code"></param>
+    /// <param name="device"></param>
+    /// <returns></returns>
     VkShaderModule GraphicsPipeline::createShaderModule(const std::vector<char>& code, VkDevice device)
     {
         VkShaderModuleCreateInfo createInfo{};
@@ -215,10 +223,14 @@ namespace Card {
 
         return shaderModule;
     }
+
+    //---------------getters------------
+
     VkPipelineLayout GraphicsPipeline::getpipelineLayout()
     {
         return pipelineLayout;
     }
+
     VkPipeline GraphicsPipeline::getgraphicsPipeline()
     {
         return graphicsPipeline;
