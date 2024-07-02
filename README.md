@@ -12,4 +12,4 @@ How to download and use:
 }
 
 7. override function start() and update() and start coding.
-8. once done building program add the lib file of the engine to the right bin locations. 
+8. once done building program add the lib file of the engine from the bin file to the right bin locations. 
