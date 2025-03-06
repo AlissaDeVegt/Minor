@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Card">
+      <UniqueIdentifier>{9F78837C-8BAF-840D-349C-6A1020B2000F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Card\Util">
+      <UniqueIdentifier>{4CCBD527-B835-8A9E-0174-3B446D1D68F3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Card\graphics">
+      <UniqueIdentifier>{DFFFA859-4BC0-2490-14FB-6D0D807A696C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Card.h" />
+    <ClInclude Include="src\Card\Application.h">
+      <Filter>Card</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\Base.h">
+      <Filter>Card</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\Entry.h">
+      <Filter>Card</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\Logger.h">
+      <Filter>Card</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\SceneBuilder.h">
+      <Filter>Card</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\Util\ModelLoader.h">
+      <Filter>Card\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\graphics\Camera.h">
+      <Filter>Card\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\graphics\Descriptor.h">
+      <Filter>Card\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\graphics\Device.h">
+      <Filter>Card\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\graphics\GraphicsPipeline.h">
+      <Filter>Card\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\graphics\Model.h">
+      <Filter>Card\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\graphics\Renderer.h">
+      <Filter>Card\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\graphics\Swapchain.h">
+      <Filter>Card\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\graphics\Vertex.h">
+      <Filter>Card\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card\graphics\Window.h">
+      <Filter>Card\graphics</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Card\Application.cpp">
+      <Filter>Card</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\Logger.cpp">
+      <Filter>Card</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\SceneBuilder.cpp">
+      <Filter>Card</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\Util\ModelLoader.cpp">
+      <Filter>Card\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\graphics\Camera.cpp">
+      <Filter>Card\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\graphics\Descriptor.cpp">
+      <Filter>Card\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\graphics\Device.cpp">
+      <Filter>Card\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\graphics\GraphicsPipeline.cpp">
+      <Filter>Card\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\graphics\Model.cpp">
+      <Filter>Card\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\graphics\Renderer.cpp">
+      <Filter>Card\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\graphics\Swapchain.cpp">
+      <Filter>Card\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\graphics\Vertex.cpp">
+      <Filter>Card\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card\graphics\Window.cpp">
+      <Filter>Card\graphics</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
